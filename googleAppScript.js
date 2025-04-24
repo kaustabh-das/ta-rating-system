@@ -27,8 +27,22 @@ function doGet(e) {
       case 'getTAs':
         responseData = getTAsData();
         break;
+      case 'getTARatings':
+        responseData = getTARatingsLogic(e.parameter.taId);
+        break;
+      case 'submitRating': // Added case for handling rating submission via GET
+        Logger.log('Handling submitRating via GET');
+        // Construct the data object from parameters, excluding 'action'
+        const ratingData = { ...e.parameter }; // Copy all parameters
+        delete ratingData.action; // Remove the action parameter itself
+        // Potentially parse comma-separated strings back to arrays if needed by submitRatingLogic
+        // Example: if (ratingData.criteria_1) ratingData.criteria_1 = ratingData.criteria_1.split(',');
+        // Adjust the above based on how submitRatingLogic expects checkbox data
+        responseData = submitRatingLogic(ratingData); // Call the submission logic
+        break;
       default:
         // Default to getUsers if action is missing or unknown in GET
+        Logger.log('Unknown or missing action in GET, defaulting to getUsers');
         responseData = getUsersData(); 
         break;
     }
@@ -222,6 +236,57 @@ function getTAsData() {
   }
 }
 
+// Get ratings for a specific TA
+function getTARatingsLogic(taId) {
+  try {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.RATINGS);
+    if (!sheet) {
+      Logger.log('Ratings sheet not found.');
+      return { status: 'error', message: 'Ratings data not found', ratings: [] };
+    }
+
+    const allRatings = sheet.getDataRange().getValues();
+    if (allRatings.length <= 1) {
+      // Only header row exists or sheet is empty
+      return { status: 'success', message: 'No ratings found for this TA', ratings: [] };
+    }
+
+    const headers = allRatings[0];
+    // Find index of taId column
+    const taIdIndex = headers.findIndex(h => h && String(h).trim().toLowerCase() === 'taid');
+    
+    if (taIdIndex === -1) {
+      Logger.log('Error: taId column not found in Ratings sheet.');
+      return { status: 'error', message: 'Ratings sheet column configuration error.', ratings: [] };
+    }
+
+    // Filter ratings for the specified TA
+    const taRatings = [];
+    for (let i = 1; i < allRatings.length; i++) {
+      const row = allRatings[i];
+      if (row.length > taIdIndex && String(row[taIdIndex]).trim() === String(taId).trim()) {
+        // Convert row to object using headers
+        const rating = {};
+        for (let j = 0; j < headers.length; j++) {
+          if (headers[j]) {
+            rating[headers[j]] = row[j];
+          }
+        }
+        taRatings.push(rating);
+      }
+    }
+
+    return { 
+      status: 'success', 
+      message: taRatings.length > 0 ? 'Ratings found' : 'No ratings found for this TA', 
+      ratings: taRatings 
+    };
+  } catch (error) {
+    Logger.log('Error in getTARatingsLogic: ' + error.message + '\nStack: ' + error.stack);
+    return { status: 'error', message: 'Failed to retrieve ratings: ' + error.message, ratings: [] };
+  }
+}
+
 // Submit a new rating logic
 function submitRatingLogic(data) {
   try {
@@ -262,6 +327,25 @@ function submitRatingLogic(data) {
         Logger.log('Duplicate rating attempt detected.');
         return { status: 'error', message: 'You have already rated this TA' };
     }
+
+    let typeAlreadyRated = false;
+    for (let i = 1; i < allRatings.length; i++) {
+      const row = allRatings[i];
+      if (row.length > Math.max(taIdIndex, raterTypeIndex) && 
+          String(row[taIdIndex]).trim() === String(data.taId).trim() && 
+          String(row[raterTypeIndex]).trim() === String(data.raterType).trim()) {
+        typeAlreadyRated = true;
+        break;
+      }
+    }
+    if (typeAlreadyRated) {
+        Logger.log('Another user of same type already rated this TA.');
+        return { 
+          status: 'error', 
+          message: `This TA has already been rated by another ${data.raterType}. Each TA can only receive one rating from a ${data.raterType}.` 
+        };
+    }
+
     const ratingId = Utilities.getUuid();
     // Ensure data order matches header order created above
     sheet.appendRow([ratingId, data.taId, data.taName || '', data.raterPhone, data.raterName || '', data.raterType, data.timestamp || new Date().toISOString(), data.discipline || 0, data.ethics || 0, data.knowledge || 0, data.communication || 0, data.teamwork || 0, data.comments || '' ]);

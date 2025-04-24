@@ -34,33 +34,63 @@ const logoutButton2 = document.getElementById('logoutButton2');
 const logoutButton3 = document.getElementById('logoutButton3');
 const backToSelectionBtn = document.getElementById('backToSelectionBtn');
 const rateAnotherBtn = document.getElementById('rateAnotherBtn');
+const loadingOverlay = document.getElementById('loadingOverlay');
 
 // Initialize the app
 window.addEventListener('DOMContentLoaded', initialize);
 
+// Loading overlay functions
+function showLoading(message = 'Loading data...') {
+    const messageElement = loadingOverlay.querySelector('p');
+    if (messageElement) {
+        messageElement.textContent = message;
+    }
+    loadingOverlay.classList.add('active');
+}
+
+function hideLoading() {
+    loadingOverlay.classList.remove('active');
+}
+
 async function initialize() {
     // Check if user is already logged in
     if (sessionStorage.getItem('isLoggedIn') === 'true') {
+        // Load user data from session storage
         currentUserPhone = sessionStorage.getItem('userPhone');
         currentUserType = sessionStorage.getItem('userType');
         currentUserName = sessionStorage.getItem('userName');
         
+        console.log('Session data found:', {
+            phone: currentUserPhone,
+            type: currentUserType,
+            name: currentUserName
+        });
+        
         // If user data is incomplete, fetch it
         if (!currentUserType || !currentUserName) {
+            console.log('Incomplete user data, fetching from server...');
             await fetchUserData(currentUserPhone);
+        } else {
+            // Make sure to update UI with stored data
+            updateUserDisplays();
+        }
+        
+        // Fetch TA list in background if not already loaded
+        if (taList.length === 0) {
+            fetchTAList();
         }
         
         showTASelection();
+    } else {
+        // If not logged in, show login screen
+        showLogin();
     }
-    
-    // Fetch users data in the background
-    fetchUsers();
 }
 
 // Fetch users from Google Sheet
 async function fetchUsers() {
     try {
-        // Replace with your Google Apps Script web app URL
+        showLoading('Loading user data...');
         
         const response = await fetch(`${apiUrl}?action=getUsers`);
         if (!response.ok) {
@@ -77,6 +107,8 @@ async function fetchUsers() {
         }));
         console.log('Users data loaded successfully');
         dataLoaded = true;
+        
+        hideLoading();
     } catch (error) {
         console.error('Error fetching users:', error);
         // Fallback to mock data if API fails
@@ -85,13 +117,15 @@ async function fetchUsers() {
             { phoneNumber: "9876543210", password: "securepass", userType: "officer", name: "Susan Officer" }
         ];
         dataLoaded = true;
+        
+        hideLoading();
     }
 }
 
 // Fetch TAs list
 async function fetchTAList() {
     try {
-        // Replace with your Google Apps Script web app URL
+        showLoading('Loading TA list...');
         
         const response = await fetch(`${apiUrl}?action=getTAs`);
         if (!response.ok) {
@@ -100,28 +134,28 @@ async function fetchTAList() {
         
         const data = await response.json();
         taList = data.tas || [];
-        console.log('TAs data loaded successfully');
-        
-        // Populate the select dropdown
         populateTADropdown();
+        console.log('TA list loaded successfully');
+        
+        hideLoading();
     } catch (error) {
         console.error('Error fetching TAs:', error);
         // Fallback to mock data if API fails
         taList = [
-            { taId: "ta1", name: "Alex Johnson" },
-            { taId: "ta2", name: "Maria Garcia" },
-            { taId: "ta3", name: "Sam Wilson" }
+            { taId: "ta1", name: "Kaustabh Das", department: "Computer Science" },
+            { taId: "ta2", name: "Mrinal Kalita", department: "Electronics" },
+            { taId: "ta3", name: "Susan Kumar", department: "Civil" }
         ];
-        
-        // Populate the select dropdown with mock data
         populateTADropdown();
+        
+        hideLoading();
     }
 }
 
 // Fetch user data
 async function fetchUserData(phone) {
     try {
-        // Replace with your Google Apps Script web app URL
+        showLoading('Loading user profile...');
         
         const response = await fetch(`${apiUrl}?action=getUserData&phone=${phone}`);
         if (!response.ok) {
@@ -129,49 +163,79 @@ async function fetchUserData(phone) {
         }
         
         const data = await response.json();
-        currentUserType = data.userType || '';
-        currentUserName = data.name || '';
+        if (data.user) {
+            currentUserType = data.user.userType || '';
+            currentUserName = data.user.name || '';
+            
+            // Store in session
+            sessionStorage.setItem('userType', currentUserType);
+            sessionStorage.setItem('userName', currentUserName);
+            
+            updateUserDisplays();
+        }
         
-        // Store in session
-        sessionStorage.setItem('userType', currentUserType);
-        sessionStorage.setItem('userName', currentUserName);
-        
-        // Update UI
-        updateUserDisplays();
-        
-        return data;
+        hideLoading();
     } catch (error) {
         console.error('Error fetching user data:', error);
-        return null;
+        hideLoading();
+    }
+}
+
+// Fetch ratings for a specific TA
+async function fetchTARatings(taId) {
+    try {
+        showLoading('Loading TA ratings...');
+        
+        const response = await fetch(`${apiUrl}?action=getTARatings&taId=${taId}`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch TA ratings');
+        }
+        
+        const data = await response.json();
+        hideLoading();
+        return data;
+    } catch (error) {
+        console.error('Error fetching TA ratings:', error);
+        hideLoading();
+        return { status: 'error', message: error.message, ratings: [] };
     }
 }
 
 // Submit rating to Google Sheet
 async function submitRating(ratingData) {
     try {
-        // Replace with your Google Apps Script web app URL
+        showLoading('Submitting rating...');
+        
+        const formData = new FormData();
+        formData.append('action', 'submitRating');
+        
+        // Add all rating data properties to formData
+        Object.keys(ratingData).forEach(key => {
+            formData.append(`data[${key}]`, ratingData[key]);
+        });
         
         const response = await fetch(apiUrl, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'text/plain; charset=utf-8'
-            },
-            body: JSON.stringify({
+            body: JSON.stringify({ 
                 action: 'submitRating',
                 data: ratingData
-            })
+            }),
+            headers: {
+                'Content-Type': 'application/json'
+            }
         });
         
         if (!response.ok) {
             throw new Error('Failed to submit rating');
         }
         
-        const data = await response.json();
-        return data;
+        const result = await response.json();
+        hideLoading();
+        return result;
     } catch (error) {
         console.error('Error submitting rating:', error);
-        // For demo purposes, return a fake success response
-        return { status: 'success', message: 'Rating submitted (demo mode)' };
+        hideLoading();
+        return { status: 'error', message: error.message };
     }
 }
 
@@ -193,10 +257,13 @@ function populateTADropdown() {
 
 // Update user display elements
 function updateUserDisplays() {
-    const displayText = `${currentUserName} (${currentUserType})`;
-    userDisplayName.textContent = displayText;
-    userDisplayName2.textContent = displayText;
-    userDisplayName3.textContent = displayText;
+    const userInfo = `${currentUserName} (${currentUserType})`;
+    console.log('Updating UI with user:', userInfo);
+    
+    // Update all user display elements
+    if (userDisplayName) userDisplayName.textContent = userInfo;
+    if (userDisplayName2) userDisplayName2.textContent = userInfo;
+    if (userDisplayName3) userDisplayName3.textContent = userInfo;
 }
 
 // Event Listeners
@@ -207,9 +274,8 @@ loginForm.addEventListener('submit', async function(e) {
     phoneError.style.display = 'none';
     passwordError.style.display = 'none';
     loginError.style.display = 'none';
-    phoneInput.classList.remove('input-error');
-    passwordInput.classList.remove('input-error');
     
+    // Get input values
     const phone = phoneInput.value.trim();
     const password = passwordInput.value.trim();
     
@@ -218,64 +284,74 @@ loginForm.addEventListener('submit', async function(e) {
     
     if (!phone) {
         phoneError.style.display = 'block';
-        phoneInput.classList.add('input-error');
         hasError = true;
     }
     
     if (!password) {
         passwordError.style.display = 'block';
-        passwordInput.classList.add('input-error');
         hasError = true;
     }
     
-    if (hasError) return;
-
-    // Ensure data is loaded before attempting login
-    if (!dataLoaded) {
-        console.log('Waiting for user data to load...');
-        loginError.textContent = 'Please wait, loading user data...';
-        loginError.style.display = 'block';
-        try {
-            await fetchUsers();
-        } catch (err) {
-            console.error('Error loading user data:', err);
-        }
+    if (hasError) {
+        return;
     }
     
-    // Authentication check against data from Google Sheet
-    console.log('Attempting login with:', phone, password);
+    showLoading('Authenticating...');
     
-    const user = users.find(u => 
-        String(u.phoneNumber).trim() === phone && 
-        String(u.password).trim() === password
-    );
+    console.log('Attempting login with:', phone);
     
-    if (user) {
-        // Store login state
-        sessionStorage.setItem('isLoggedIn', 'true');
-        sessionStorage.setItem('userPhone', phone);
+    try {
+        // First check if we have users data loaded
+        if (!dataLoaded) {
+            await fetchUsers();
+        }
         
-        // Store user type and name
-        currentUserPhone = phone;
-        currentUserType = user.userType || '';
-        currentUserName = user.name || '';
-        sessionStorage.setItem('userType', currentUserType);
-        sessionStorage.setItem('userName', currentUserName);
+        const user = users.find(u => 
+            String(u.phoneNumber).trim() === phone && 
+            String(u.password).trim() === password
+        );
         
-        // Update UI with user info
-        updateUserDisplays();
-        
-        // Show TA selection screen
-        showTASelection();
-    } else {
-        // Failed login
-        loginError.textContent = 'Invalid phone number or password';
+        if (user) {
+            // Store login state and user data
+            currentUserPhone = phone;
+            currentUserType = user.userType;
+            currentUserName = user.name;
+            
+            console.log('Login successful for:', user);
+            
+            // Save to session storage
+            sessionStorage.setItem('isLoggedIn', 'true');
+            sessionStorage.setItem('userPhone', phone);
+            sessionStorage.setItem('userType', user.userType);
+            sessionStorage.setItem('userName', user.name);
+            
+            // Update UI
+            updateUserDisplays();
+            
+            // Load TA list if needed
+            if (taList.length === 0) {
+                await fetchTAList();
+            }
+            
+            hideLoading();
+            // Show TA selection screen
+            showTASelection();
+        } else {
+            // Failed login
+            hideLoading();
+            loginError.textContent = 'Invalid phone number or password';
+            loginError.style.display = 'block';
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        hideLoading();
+        loginError.textContent = 'Login failed. Please try again.';
         loginError.style.display = 'block';
     }
 });
 
 // Proceed to rating button
-proceedToRatingBtn.addEventListener('click', function() {
+proceedToRatingBtn.addEventListener('click', async function() {
     taSelectError.style.display = 'none';
     
     selectedTAId = taSelect.value;
@@ -284,15 +360,17 @@ proceedToRatingBtn.addEventListener('click', function() {
         return;
     }
     
-    // Get selected TA name
     const selectedOption = taSelect.options[taSelect.selectedIndex];
     selectedTAName = selectedOption.textContent;
     
     // Update UI
     selectedTANameDisplay.textContent = selectedTAName;
     
-    // Show rating screen
-    showRatingScreen();
+    // Fetch any existing ratings for this TA
+    const ratingsData = await fetchTARatings(selectedTAId);
+    
+    // Show rating screen (passing ratings data)
+    showRatingScreen(ratingsData);
 });
 
 // Rating form submission
@@ -348,7 +426,22 @@ ratingForm.addEventListener('submit', async function(e) {
 
 // Back to selection button
 backToSelectionBtn.addEventListener('click', function() {
-    showTASelection();
+    // Reset any error messages
+    ratingError.style.display = 'none';
+    
+    // Hide current screen and show TA selection screen
+    ratingContainer.style.display = 'none';
+    taSelectionContainer.style.display = 'block';
+    
+    // Reset form
+    ratingForm.reset();
+    
+    // Update body style
+    document.body.className = 'centered';
+    document.body.style.display = 'flex';
+    document.body.style.height = '100vh';
+    document.body.style.alignItems = 'center';
+    document.body.style.justifyContent = 'center';
 });
 
 // Rate another button
@@ -381,6 +474,7 @@ function showLogin() {
     loginForm.reset();
     
     // Reset body style for login screen
+    document.body.className = 'centered';
     document.body.style.display = 'flex';
     document.body.style.height = '100vh';
     document.body.style.alignItems = 'center';
@@ -394,6 +488,7 @@ function showTASelection() {
     confirmationContainer.style.display = 'none';
     
     // Reset body style
+    document.body.className = 'centered';
     document.body.style.display = 'flex';
     document.body.style.height = '100vh';
     document.body.style.alignItems = 'center';
@@ -405,14 +500,309 @@ function showTASelection() {
     }
 }
 
-function showRatingScreen() {
+function showRatingScreen(ratingsData) {
     loginContainer.style.display = 'none';
     taSelectionContainer.style.display = 'none';
     ratingContainer.style.display = 'block';
     confirmationContainer.style.display = 'none';
     
+    // Reset body style for rating screen - ensure content is scrollable
+    document.body.className = '';
+    document.body.style.display = 'block';
+    document.body.style.height = 'auto';
+    document.body.style.minHeight = '100vh';
+    document.body.style.overflow = 'auto';
+    
     // Reset rating form
     ratingForm.reset();
+    
+    // Get references to the rating form elements
+    let existingRatingsContainer = document.getElementById('existingRatingsContainer');
+    let existingRatingsContent = document.getElementById('existingRatingsContent');
+    
+    // If we don't have these containers yet, we need to create them
+    if (!existingRatingsContainer) {
+        // Create container for existing ratings
+        existingRatingsContainer = document.createElement('div');
+        existingRatingsContainer.id = 'existingRatingsContainer';
+        existingRatingsContainer.style.display = 'none';
+        existingRatingsContainer.style.marginTop = '20px';
+        existingRatingsContainer.style.padding = '15px';
+        existingRatingsContainer.style.border = '1px solid #ddd';
+        existingRatingsContainer.style.borderRadius = '5px';
+        existingRatingsContainer.style.backgroundColor = '#f8f8f8';
+        
+        // Create header for existing ratings
+        const header = document.createElement('h4');
+        header.textContent = 'Existing Ratings';
+        existingRatingsContainer.appendChild(header);
+        
+        // Create content div for ratings
+        existingRatingsContent = document.createElement('div');
+        existingRatingsContent.id = 'existingRatingsContent';
+        existingRatingsContainer.appendChild(existingRatingsContent);
+        
+        // Insert after the rating form
+        ratingContainer.appendChild(existingRatingsContainer);
+    }
+    
+    // Create or get a reference to the mentor ratings container (for officers)
+    let mentorRatingsContainer = document.getElementById('mentorRatingsContainer');
+    
+    if (!mentorRatingsContainer && currentUserType === 'officer') {
+        // Create container for mentor ratings that will be shown to officers
+        mentorRatingsContainer = document.createElement('div');
+        mentorRatingsContainer.id = 'mentorRatingsContainer';
+        mentorRatingsContainer.style.marginTop = '20px';
+        mentorRatingsContainer.style.marginBottom = '30px'; // Add gap between mentor rating and form
+        mentorRatingsContainer.style.padding = '15px';
+        mentorRatingsContainer.style.border = '1px solid #ddd';
+        mentorRatingsContainer.style.borderRadius = '5px';
+        mentorRatingsContainer.style.backgroundColor = 'rgba(76, 201, 240, 0.1)'; // Light accent color
+        
+        // Create header for mentor ratings
+        const mentorHeader = document.createElement('h4');
+        mentorHeader.textContent = 'Mentor Rating';
+        mentorHeader.style.color = 'var(--secondary-color)';
+        mentorHeader.style.marginBottom = '15px';
+        mentorHeader.style.paddingBottom = '10px';
+        mentorHeader.style.borderBottom = '1px solid var(--medium-gray)';
+        mentorRatingsContainer.appendChild(mentorHeader);
+        
+        // Create content div for mentor ratings
+        const mentorRatingsContent = document.createElement('div');
+        mentorRatingsContent.id = 'mentorRatingsContent';
+        mentorRatingsContainer.appendChild(mentorRatingsContent);
+        
+        // Insert before the rating form
+        ratingContainer.querySelector('.content').insertBefore(mentorRatingsContainer, ratingForm);
+    }
+    
+    console.log("Ratings data:", ratingsData);
+    
+    if (!ratingsData || !ratingsData.ratings || ratingsData.ratings.length === 0) {
+        // No existing ratings, show the form
+        ratingForm.style.display = 'block';
+        existingRatingsContainer.style.display = 'none';
+        if (mentorRatingsContainer) {
+            mentorRatingsContainer.style.display = 'none';
+        }
+        return;
+    }
+    
+    // Check if this user type has already rated this TA
+    const currentUserTypeRating = ratingsData.ratings.find(rating => 
+        rating.raterType === currentUserType
+    );
+    
+    // Check if there's a mentor rating (for officers to see)
+    const mentorRating = currentUserType === 'officer' ? 
+        ratingsData.ratings.find(rating => rating.raterType === 'mentor') : 
+        null;
+    
+    console.log("Current user type rating:", currentUserTypeRating);
+    console.log("Mentor rating (for officers):", mentorRating);
+    
+    // Display mentor rating for officers
+    if (mentorRating && mentorRatingsContainer) {
+        mentorRatingsContainer.style.display = 'block';
+        const mentorRatingsContent = document.getElementById('mentorRatingsContent');
+        mentorRatingsContent.innerHTML = '';
+        
+        // Create a formatted display of the mentor rating
+        const raterInfo = document.createElement('p');
+        raterInfo.innerHTML = `<strong>Rated by:</strong> ${mentorRating.raterName} (mentor)`;
+        mentorRatingsContent.appendChild(raterInfo);
+        
+        const ratingDate = document.createElement('p');
+        ratingDate.innerHTML = `<strong>Date:</strong> ${new Date(mentorRating.timestamp).toLocaleString()}`;
+        mentorRatingsContent.appendChild(ratingDate);
+        
+        // Create a table for the ratings
+        const ratingTable = document.createElement('table');
+        ratingTable.style.width = '100%';
+        ratingTable.style.borderCollapse = 'collapse';
+        ratingTable.style.marginTop = '15px';
+        
+        const tableHeader = document.createElement('thead');
+        const headerRow = document.createElement('tr');
+        
+        const categoryHeader = document.createElement('th');
+        categoryHeader.textContent = 'Category';
+        categoryHeader.style.border = '1px solid #ddd';
+        categoryHeader.style.padding = '8px';
+        categoryHeader.style.backgroundColor = '#f2f2f2';
+        
+        const ratingHeader = document.createElement('th');
+        ratingHeader.textContent = 'Rating';
+        ratingHeader.style.border = '1px solid #ddd';
+        ratingHeader.style.padding = '8px';
+        ratingHeader.style.backgroundColor = '#f2f2f2';
+        
+        headerRow.appendChild(categoryHeader);
+        headerRow.appendChild(ratingHeader);
+        tableHeader.appendChild(headerRow);
+        ratingTable.appendChild(tableHeader);
+        
+        const tableBody = document.createElement('tbody');
+        
+        // Add rows for each rating category
+        const categories = [
+            { key: 'discipline', label: 'Discipline' },
+            { key: 'ethics', label: 'Ethics' },
+            { key: 'knowledge', label: 'Knowledge' },
+            { key: 'communication', label: 'Communication' },
+            { key: 'teamwork', label: 'Teamwork' }
+        ];
+        
+        categories.forEach(category => {
+            const row = document.createElement('tr');
+            
+            const categoryCell = document.createElement('td');
+            categoryCell.textContent = category.label;
+            categoryCell.style.border = '1px solid #ddd';
+            categoryCell.style.padding = '8px';
+            
+            const ratingCell = document.createElement('td');
+            ratingCell.textContent = `${mentorRating[category.key]} / 5`;
+            ratingCell.style.border = '1px solid #ddd';
+            ratingCell.style.padding = '8px';
+            
+            row.appendChild(categoryCell);
+            row.appendChild(ratingCell);
+            tableBody.appendChild(row);
+        });
+        
+        ratingTable.appendChild(tableBody);
+        mentorRatingsContent.appendChild(ratingTable);
+        
+        // Add comments if any
+        if (mentorRating.comments) {
+            const commentsDiv = document.createElement('div');
+            commentsDiv.style.marginTop = '15px';
+            
+            const commentsHeader = document.createElement('strong');
+            commentsHeader.textContent = 'Comments:';
+            commentsDiv.appendChild(commentsHeader);
+            
+            const commentsPara = document.createElement('p');
+            commentsPara.textContent = mentorRating.comments;
+            commentsPara.style.marginTop = '5px';
+            commentsDiv.appendChild(commentsPara);
+            
+            mentorRatingsContent.appendChild(commentsDiv);
+        }
+    } else if (mentorRatingsContainer) {
+        mentorRatingsContainer.style.display = 'none';
+    }
+    
+    if (currentUserTypeRating) {
+        // This user type has already rated this TA, show the rating data and hide the form
+        ratingForm.style.display = 'none';
+        existingRatingsContainer.style.display = 'block';
+        
+        // Format the existing rating for display
+        existingRatingsContent.innerHTML = '';
+        
+        // Create a formatted display of the existing rating
+        const raterInfo = document.createElement('p');
+        raterInfo.innerHTML = `<strong>Rated by:</strong> ${currentUserTypeRating.raterName} (${currentUserTypeRating.raterType})`;
+        existingRatingsContent.appendChild(raterInfo);
+        
+        const ratingDate = document.createElement('p');
+        ratingDate.innerHTML = `<strong>Date:</strong> ${new Date(currentUserTypeRating.timestamp).toLocaleString()}`;
+        existingRatingsContent.appendChild(ratingDate);
+        
+        // Create a table for the ratings
+        const ratingTable = document.createElement('table');
+        ratingTable.style.width = '100%';
+        ratingTable.style.borderCollapse = 'collapse';
+        ratingTable.style.marginTop = '15px';
+        
+        const tableHeader = document.createElement('thead');
+        const headerRow = document.createElement('tr');
+        
+        const categoryHeader = document.createElement('th');
+        categoryHeader.textContent = 'Category';
+        categoryHeader.style.border = '1px solid #ddd';
+        categoryHeader.style.padding = '8px';
+        categoryHeader.style.backgroundColor = '#f2f2f2';
+        
+        const ratingHeader = document.createElement('th');
+        ratingHeader.textContent = 'Rating';
+        ratingHeader.style.border = '1px solid #ddd';
+        ratingHeader.style.padding = '8px';
+        ratingHeader.style.backgroundColor = '#f2f2f2';
+        
+        headerRow.appendChild(categoryHeader);
+        headerRow.appendChild(ratingHeader);
+        tableHeader.appendChild(headerRow);
+        ratingTable.appendChild(tableHeader);
+        
+        const tableBody = document.createElement('tbody');
+        
+        // Add rows for each rating category
+        const categories = [
+            { key: 'discipline', label: 'Discipline' },
+            { key: 'ethics', label: 'Ethics' },
+            { key: 'knowledge', label: 'Knowledge' },
+            { key: 'communication', label: 'Communication' },
+            { key: 'teamwork', label: 'Teamwork' }
+        ];
+        
+        categories.forEach(category => {
+            const row = document.createElement('tr');
+            
+            const categoryCell = document.createElement('td');
+            categoryCell.textContent = category.label;
+            categoryCell.style.border = '1px solid #ddd';
+            categoryCell.style.padding = '8px';
+            
+            const ratingCell = document.createElement('td');
+            ratingCell.textContent = `${currentUserTypeRating[category.key]} / 5`;
+            ratingCell.style.border = '1px solid #ddd';
+            ratingCell.style.padding = '8px';
+            
+            row.appendChild(categoryCell);
+            row.appendChild(ratingCell);
+            tableBody.appendChild(row);
+        });
+        
+        ratingTable.appendChild(tableBody);
+        existingRatingsContent.appendChild(ratingTable);
+        
+        // Add comments if any
+        if (currentUserTypeRating.comments) {
+            const commentsDiv = document.createElement('div');
+            commentsDiv.style.marginTop = '15px';
+            
+            const commentsHeader = document.createElement('strong');
+            commentsHeader.textContent = 'Comments:';
+            commentsDiv.appendChild(commentsHeader);
+            
+            const commentsPara = document.createElement('p');
+            commentsPara.textContent = currentUserTypeRating.comments;
+            commentsPara.style.marginTop = '5px';
+            commentsDiv.appendChild(commentsPara);
+            
+            existingRatingsContent.appendChild(commentsDiv);
+        }
+        
+        // Add a note about the rating policy
+        const policyNote = document.createElement('div');
+        policyNote.style.marginTop = '15px';
+        policyNote.style.padding = '10px';
+        policyNote.style.backgroundColor = '#d9edf7';
+        policyNote.style.border = '1px solid #bce8f1';
+        policyNote.style.borderRadius = '4px';
+        policyNote.style.color = '#31708f';
+        policyNote.textContent = `Note: Each TA can only receive one rating from a ${currentUserType}. This TA has already been rated by a ${currentUserType}.`;
+        existingRatingsContent.appendChild(policyNote);
+    } else {
+        // This user type hasn't rated this TA yet, show the form
+        ratingForm.style.display = 'block';
+        existingRatingsContainer.style.display = 'none';
+    }
 }
 
 function showConfirmationScreen() {
@@ -420,4 +810,11 @@ function showConfirmationScreen() {
     taSelectionContainer.style.display = 'none';
     ratingContainer.style.display = 'none';
     confirmationContainer.style.display = 'block';
+    
+    // Reset body style
+    document.body.className = 'centered';
+    document.body.style.display = 'flex';
+    document.body.style.height = '100vh';
+    document.body.style.alignItems = 'center';
+    document.body.style.justifyContent = 'center';
 } 
