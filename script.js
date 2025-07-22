@@ -206,36 +206,34 @@ async function submitRating(ratingData) {
     try {
         showLoading('Submitting rating...');
         
-        const formData = new FormData();
-        formData.append('action', 'submitRating');
+        // Use GET request as primary method
+        const params = new URLSearchParams();
+        params.append('action', 'submitRating');
         
-        // Add all rating data properties to formData
+        // Add all rating data as URL parameters
         Object.keys(ratingData).forEach(key => {
-            formData.append(`data[${key}]`, ratingData[key]);
+            params.append(key, ratingData[key]);
         });
         
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            body: JSON.stringify({ 
-                action: 'submitRating',
-                data: ratingData
-            }),
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
+        const response = await fetch(`${apiUrl}?${params.toString()}`);
         
         if (!response.ok) {
-            throw new Error('Failed to submit rating');
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
         
         const result = await response.json();
         hideLoading();
         return result;
     } catch (error) {
-        console.error('Error submitting rating:', error);
+        console.error('GET request failed:', error);
         hideLoading();
-        return { status: 'error', message: error.message };
+        
+        // Provide more specific error messages
+        if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+            return { status: 'error', message: 'Network error. Please check your internet connection and try again.' };
+        }
+        
+        return { status: 'error', message: `Submission failed: ${error.message}` };
     }
 }
 
@@ -411,8 +409,12 @@ ratingForm.addEventListener('submit', async function(e) {
         timestamp: new Date().toISOString()
     };
     
+    console.log('Submitting rating data:', ratingData);
+    
     // Submit rating
     const result = await submitRating(ratingData);
+    
+    console.log('Rating submission result:', result);
     
     if (result.status === 'success') {
         // Show confirmation screen
