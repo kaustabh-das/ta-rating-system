@@ -30,6 +30,9 @@ function doGet(e) {
       case 'getTARatings':
         responseData = getTARatingsLogic(e.parameter.taId);
         break;
+      case 'getReviewPeriods':
+        responseData = getReviewPeriodsLogic(e.parameter.taId, e.parameter.raterType);
+        break;
       case 'submitRating': // Added case for handling rating submission via GET
         Logger.log('Handling submitRating via GET');
         // Construct the data object from parameters, excluding 'action'
@@ -295,8 +298,8 @@ function submitRatingLogic(data) {
     if (!sheet) {
       Logger.log('Ratings sheet not found, creating it.');
       sheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet(SHEETS.RATINGS);
-      // Ensure headers match the order of appendRow
-      sheet.appendRow(['ratingId', 'taId', 'taName', 'raterPhone', 'raterName', 'raterType', 'timestamp', 'discipline', 'ethics', 'knowledge', 'communication', 'teamwork', 'comments']);
+      // Updated headers to include startDate and endDate
+      sheet.appendRow(['ratingId', 'taId', 'taName', 'raterPhone', 'raterName', 'raterType', 'startDate', 'endDate', 'timestamp', 'discipline', 'ethics', 'knowledge', 'communication', 'teamwork', 'comments']);
     }
     const allRatings = sheet.getDataRange().getValues();
     const headers = allRatings[0];
@@ -305,12 +308,15 @@ function submitRatingLogic(data) {
     const taIdIndex = findIndex('taId');
     const raterPhoneIndex = findIndex('raterPhone');
     const raterTypeIndex = findIndex('raterType');
+    const startDateIndex = findIndex('startDate');
+    const endDateIndex = findIndex('endDate');
 
     if (taIdIndex === -1 || raterPhoneIndex === -1 || raterTypeIndex === -1) {
         Logger.log('Error: Missing required columns (taId, raterPhone, raterType) in Ratings sheet.');
         return { status: 'error', message: 'Ratings sheet column configuration error.' };
     }
 
+    // Check for duplicate rating (same TA, rater, and overlapping date range)
     let existingRating = false;
     for (let i = 1; i < allRatings.length; i++) {
       const row = allRatings[i];
@@ -319,8 +325,25 @@ function submitRatingLogic(data) {
           String(row[taIdIndex]).trim() === String(data.taId).trim() && 
           String(row[raterPhoneIndex]).trim() === String(data.raterPhone).trim() && 
           String(row[raterTypeIndex]).trim() === String(data.raterType).trim()) {
-        existingRating = true;
-        break;
+        
+        // Check for date range overlap if both current and existing ratings have date ranges
+        if (data.startDate && data.endDate && startDateIndex !== -1 && endDateIndex !== -1 && 
+            row[startDateIndex] && row[endDateIndex]) {
+          const existingStart = new Date(row[startDateIndex]);
+          const existingEnd = new Date(row[endDateIndex]);
+          const newStart = new Date(data.startDate);
+          const newEnd = new Date(data.endDate);
+          
+          // Check for overlap: new period overlaps with existing period
+          if (newStart <= existingEnd && newEnd >= existingStart) {
+            Logger.log('Date range overlap detected.');
+            return { status: 'error', message: 'Rating period overlaps with existing review period' };
+          }
+        } else {
+          // If no date ranges, treat as duplicate (old behavior)
+          existingRating = true;
+          break;
+        }
       }
     }
     if (existingRating) {
@@ -328,32 +351,106 @@ function submitRatingLogic(data) {
         return { status: 'error', message: 'You have already rated this TA' };
     }
 
-    let typeAlreadyRated = false;
-    for (let i = 1; i < allRatings.length; i++) {
-      const row = allRatings[i];
-      if (row.length > Math.max(taIdIndex, raterTypeIndex) && 
-          String(row[taIdIndex]).trim() === String(data.taId).trim() && 
-          String(row[raterTypeIndex]).trim() === String(data.raterType).trim()) {
-        typeAlreadyRated = true;
-        break;
-      }
-    }
-    if (typeAlreadyRated) {
-        Logger.log('Another user of same type already rated this TA.');
-        return { 
-          status: 'error', 
-          message: `This TA has already been rated by another ${data.raterType}. Each TA can only receive one rating from a ${data.raterType}.` 
-        };
-    }
+    // Note: Removed the typeAlreadyRated check since we now allow multiple ratings 
+    // per user type for different date ranges
 
     const ratingId = Utilities.getUuid();
-    // Ensure data order matches header order created above
-    sheet.appendRow([ratingId, data.taId, data.taName || '', data.raterPhone, data.raterName || '', data.raterType, data.timestamp || new Date().toISOString(), data.discipline || 0, data.ethics || 0, data.knowledge || 0, data.communication || 0, data.teamwork || 0, data.comments || '' ]);
+    // Updated data order to include startDate and endDate
+    sheet.appendRow([
+      ratingId, 
+      data.taId, 
+      data.taName || '', 
+      data.raterPhone, 
+      data.raterName || '', 
+      data.raterType, 
+      data.startDate || '', 
+      data.endDate || '', 
+      data.timestamp || new Date().toISOString(), 
+      data.discipline || 0, 
+      data.ethics || 0, 
+      data.knowledge || 0, 
+      data.communication || 0, 
+      data.teamwork || 0, 
+      data.comments || ''
+    ]);
     Logger.log('Rating submitted successfully with ID: ' + ratingId);
     return { status: 'success', message: 'Rating submitted successfully', ratingId: ratingId };
   } catch (error) {
     Logger.log('Error in submitRatingLogic: ' + error.message + '\nStack: ' + error.stack);
     return { status: 'error', message: 'Failed to submit rating: ' + error.message };
+  }
+}
+
+// Get review periods for a specific TA and user type
+function getReviewPeriodsLogic(taId, raterType) {
+  try {
+    if (!taId || !raterType) {
+      return { status: 'error', message: 'TA ID and rater type are required', periods: [] };
+    }
+
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.RATINGS);
+    if (!sheet) {
+      Logger.log('Ratings sheet not found.');
+      return { status: 'success', message: 'No review periods found', periods: [] };
+    }
+
+    const allRatings = sheet.getDataRange().getValues();
+    if (allRatings.length <= 1) {
+      // Only header row exists or sheet is empty
+      return { status: 'success', message: 'No review periods found', periods: [] };
+    }
+
+    const headers = allRatings[0];
+    // Find indices of required columns
+    const findIndex = (name) => headers.findIndex(h => h && String(h).trim().toLowerCase() === name.toLowerCase());
+    const taIdIndex = findIndex('taId');
+    const raterTypeIndex = findIndex('raterType');
+    const startDateIndex = findIndex('startDate');
+    const endDateIndex = findIndex('endDate');
+    const timestampIndex = findIndex('timestamp');
+    const ratingIdIndex = findIndex('ratingId');
+    
+    if (taIdIndex === -1 || raterTypeIndex === -1) {
+      Logger.log('Error: Required columns not found in Ratings sheet.');
+      return { status: 'error', message: 'Ratings sheet configuration error', periods: [] };
+    }
+
+    // Filter review periods for the specified TA and user type
+    const reviewPeriods = [];
+    for (let i = 1; i < allRatings.length; i++) {
+      const row = allRatings[i];
+      if (row.length > Math.max(taIdIndex, raterTypeIndex) && 
+          String(row[taIdIndex]).trim() === String(taId).trim() && 
+          String(row[raterTypeIndex]).trim() === String(raterType).trim()) {
+        
+        const period = {
+          periodId: ratingIdIndex !== -1 ? row[ratingIdIndex] : row[timestampIndex] || i.toString(),
+          taId: row[taIdIndex],
+          raterType: row[raterTypeIndex],
+          startDate: startDateIndex !== -1 ? row[startDateIndex] : '',
+          endDate: endDateIndex !== -1 ? row[endDateIndex] : '',
+          timestamp: timestampIndex !== -1 ? row[timestampIndex] : ''
+        };
+        
+        reviewPeriods.push(period);
+      }
+    }
+
+    // Sort by timestamp (newest first)
+    reviewPeriods.sort((a, b) => {
+      const dateA = new Date(a.timestamp);
+      const dateB = new Date(b.timestamp);
+      return dateB - dateA;
+    });
+
+    return { 
+      status: 'success', 
+      message: reviewPeriods.length > 0 ? 'Review periods found' : 'No review periods found', 
+      periods: reviewPeriods 
+    };
+  } catch (error) {
+    Logger.log('Error in getReviewPeriodsLogic: ' + error.message + '\nStack: ' + error.stack);
+    return { status: 'error', message: 'Failed to retrieve review periods: ' + error.message, periods: [] };
   }
 }
 
@@ -391,6 +488,8 @@ function testSubmitRating() {
     raterPhone: "1234567890",
     raterName: "Test Mentor",
     raterType: "mentor",
+    startDate: "01/01/2024",
+    endDate: "31/03/2024",
     discipline: 4,
     ethics: 5,
     knowledge: 3,

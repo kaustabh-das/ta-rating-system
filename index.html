@@ -86,6 +86,7 @@
         </div>
         <div class="content">
             <h2 id="selectedTAName"></h2>
+            <div id="reviewPeriodDisplay" class="review-period-display" style="margin-bottom: 20px; padding: 10px; background-color: #f0f8ff; border: 1px solid #007bff; border-radius: 5px; color: #007bff; font-weight: bold;"></div>
             <form id="ratingForm">
                 <div class="rating-group">
                     <label>Discipline</label>
@@ -175,6 +176,63 @@
         </div>
     </div>
 
-    <script src="script.js" defer></script>
+    <!-- Review Management Screen -->
+    <div class="container" id="reviewManagementContainer" style="display: none;">
+        <div class="header">
+            <div class="header-row">
+                <button onclick="showTASelection()" class="back-btn">Back to Selection</button>
+                <h1>Review Management</h1>
+            </div>
+            <div class="user-info">
+                <span id="userDisplayName4"></span>
+                <button onclick="logout()" class="logout-btn">Logout</button>
+            </div>
+        </div>
+        <div class="content">
+            <h2>Reviews for <span id="reviewManagementTAName"></span></h2>
+            <div id="existingReviewsList"></div>
+            <button id="addReviewBtn" class="primary-btn" style="margin-top: 20px;">+ Add Review</button>
+        </div>
+    </div>
+
+    <!-- Date Range Selection Modal -->
+    <div id="dateRangeModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Select Review Period</h3>
+                <span class="close" onclick="closeDateRangeModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="startDate">Start Date</label>
+                    <input type="date" id="startDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="endDate">End Date</label>
+                    <input type="date" id="endDate" required>
+                </div>
+                <div id="dateRangeError" class="error-message"></div>
+                <div class="modal-footer">
+                    <button type="button" onclick="closeDateRangeModal()" class="secondary-btn">Cancel</button>
+                    <button type="button" id="proceedWithDatesBtn" class="primary-btn" disabled>Proceed</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Modules -->
+    <script src="js/config.js" defer></script>
+    <script src="js/state.js" defer></script>
+    <script src="js/dom-elements.js" defer></script>
+    <script src="js/ui-utils.js" defer></script>
+    <script src="js/date-utils.js" defer></script>
+    <script src="js/api-service.js" defer></script>
+    <script src="js/screen-manager.js" defer></script>
+    <script src="js/ta-manager.js" defer></script>
+    <script src="js/auth-manager.js" defer></script>
+    <script src="js/rating-manager.js" defer></script>
+    <script src="js/review-manager.js" defer></script>
+    <script src="js/event-handlers.js" defer></script>
+    <script src="js/app.js" defer></script>
 </body>
 </html>
