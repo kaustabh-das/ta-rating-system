@@ -16,6 +16,7 @@ class AppState {
         this.selectedStartDate = '';
         this.selectedEndDate = '';
         this.existingReviewPeriods = [];
+        this.currentDisplayedPeriod = null;  // Track currently displayed rating period
         
         // Application state
         this.dataLoaded = false;
@@ -26,6 +27,14 @@ class AppState {
         this.currentUserPhone = phone;
         this.currentUserName = name;
         this.currentUserType = type;
+        
+        // Clear TA and rating data when switching users
+        this.selectedTAId = '';
+        this.selectedTAName = '';
+        this.selectedStartDate = '';
+        this.selectedEndDate = '';
+        this.existingReviewPeriods = [];
+        this.currentDisplayedPeriod = null;
     }
 
     getCurrentUser() {
@@ -40,6 +49,12 @@ class AppState {
     setSelectedTA(id, name) {
         this.selectedTAId = id;
         this.selectedTAName = name;
+        
+        // Clear previous TA's rating data when switching TAs
+        this.selectedStartDate = '';
+        this.selectedEndDate = '';
+        this.existingReviewPeriods = [];
+        this.currentDisplayedPeriod = null;
     }
 
     getSelectedTA() {
@@ -51,8 +66,46 @@ class AppState {
 
     // Date range methods
     setDateRange(startDate, endDate) {
-        this.selectedStartDate = startDate;
-        this.selectedEndDate = endDate;
+        // Ensure dates are properly formatted in DD/MM/YY format
+        // Handle both YYYY-MM-DD (from HTML date inputs) and DD/MM/YYYY formats
+        this.selectedStartDate = this.formatDateForStorage(startDate);
+        this.selectedEndDate = this.formatDateForStorage(endDate);
+    }
+
+    // Helper method to format dates consistently
+    formatDateForStorage(dateInput) {
+        if (!dateInput) return '';
+        
+        let date;
+        const dateStr = String(dateInput).trim();
+        
+        if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            // YYYY-MM-DD format from HTML date input
+            date = new Date(dateStr);
+        } else if (dateStr.includes('/')) {
+            // DD/MM/YYYY or DD/MM/YY format
+            const parts = dateStr.split('/');
+            if (parts.length === 3) {
+                let year = parseInt(parts[2]);
+                if (year < 100) {
+                    year += year < 50 ? 2000 : 1900;
+                }
+                date = new Date(year, parts[1] - 1, parts[0]);
+            }
+        } else {
+            // Try parsing as-is
+            date = new Date(dateStr);
+        }
+        
+        if (date && !isNaN(date.getTime())) {
+            // Format as DD/MM/YY
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = String(date.getFullYear()).slice(-2);
+            return `${day}/${month}/${year}`;
+        }
+        
+        return dateStr; // Return original if can't parse
     }
 
     getDateRange() {
@@ -94,6 +147,12 @@ class AppState {
         this.selectedStartDate = '';
         this.selectedEndDate = '';
         this.existingReviewPeriods = [];
+        this.currentDisplayedPeriod = null;
+    }
+
+    // Method to clear currently displayed period
+    clearDisplayedPeriod() {
+        this.currentDisplayedPeriod = null;
     }
 }
 

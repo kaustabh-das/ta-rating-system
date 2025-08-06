@@ -88,6 +88,7 @@ class EventHandlers {
         if (domElements.backToSelectionBtn) {
             domElements.backToSelectionBtn.addEventListener('click', function() {
                 UIUtils.hideError(domElements.ratingError);
+                RatingManager.clearValidationErrors();
                 ScreenManager.showTASelection();
                 UIUtils.resetForm(domElements.ratingForm);
             });
@@ -96,6 +97,8 @@ class EventHandlers {
         // Rate another button
         if (domElements.rateAnotherBtn) {
             domElements.rateAnotherBtn.addEventListener('click', function() {
+                RatingManager.clearValidationErrors();
+                UIUtils.resetForm(domElements.ratingForm);
                 ScreenManager.showTASelection();
             });
         }
@@ -112,8 +115,8 @@ class EventHandlers {
         if (domElements.proceedWithDatesBtn) {
             domElements.proceedWithDatesBtn.addEventListener('click', function() {
                 if (DateUtils.validateDateRange()) {
-                    appState.selectedStartDate = DateUtils.formatDateForDisplay(new Date(domElements.startDateInput.value));
-                    appState.selectedEndDate = DateUtils.formatDateForDisplay(new Date(domElements.endDateInput.value));
+                    // Use compact format (DD/MM/YY) for date range
+                    appState.setDateRange(domElements.startDateInput.value, domElements.endDateInput.value);
                     
                     // Hide modal and show rating screen
                     ScreenManager.closeDateRangeModal();

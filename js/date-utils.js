@@ -1,9 +1,16 @@
 // Date Utility Functions
 class DateUtils {
-    // Parse DD/MM/YYYY format
+    // Parse DD/MM/YYYY or DD/MM/YY format
     static parseDate(dateString) {
         const parts = dateString.split('/');
-        return new Date(parts[2], parts[1] - 1, parts[0]);
+        let year = parseInt(parts[2]);
+        
+        // Handle YY format by converting to YYYY
+        if (year < 100) {
+            year += year < 50 ? 2000 : 1900; // Assume years 00-49 are 20xx, 50-99 are 19xx
+        }
+        
+        return new Date(year, parts[1] - 1, parts[0]);
     }
 
     // Format for HTML date input (YYYY-MM-DD)
@@ -33,15 +40,25 @@ class DateUtils {
         // Convert to string if it's not already
         const dateStr = String(dateString).trim();
         
-        if (dateStr.includes('/')) {
-            // Handle DD/MM/YYYY or MM/DD/YYYY format
+        if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            // Handle YYYY-MM-DD format from HTML date input
+            date = new Date(dateStr);
+        } else if (dateStr.includes('/')) {
+            // Handle DD/MM/YYYY or DD/MM/YY format
             const parts = dateStr.split('/');
             if (parts.length === 3) {
-                // Assume DD/MM/YYYY format
-                date = new Date(parts[2], parts[1] - 1, parts[0]);
+                // Always assume DD/MM/YYYY or DD/MM/YY format
+                let year = parseInt(parts[2]);
+                
+                // Handle YY format by converting to YYYY
+                if (year < 100) {
+                    year += year < 50 ? 2000 : 1900;
+                }
+                
+                date = new Date(year, parts[1] - 1, parts[0]);
             }
         } else if (dateStr.includes('T') || dateStr.match(/\d{4}-\d{2}-\d{2}/)) {
-            // Handle ISO timestamp format (2025-03-02T18:30:00.000Z) or YYYY-MM-DD
+            // Handle ISO timestamp format (2025-03-02T18:30:00.000Z) or YYYY-MM-DD format
             date = new Date(dateStr);
         } else if (dateStr.match(/^\d+$/)) {
             // Handle Unix timestamp

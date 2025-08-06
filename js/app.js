@@ -14,5 +14,18 @@ class App {
     }
 }
 
+// Global wrapper functions for HTML onclick attributes
+window.closeDateRangeModal = function() {
+    ScreenManager.closeDateRangeModal();
+};
+
+window.showTASelection = function() {
+    ScreenManager.showTASelection();
+};
+
+window.logout = function() {
+    AuthManager.logout();
+};
+
 // Initialize the app when DOM is loaded
 window.addEventListener('DOMContentLoaded', App.initialize);

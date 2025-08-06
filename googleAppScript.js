@@ -257,10 +257,42 @@ function getTARatingsLogic(taId) {
     const headers = allRatings[0];
     // Find index of taId column
     const taIdIndex = headers.findIndex(h => h && String(h).trim().toLowerCase() === 'taid');
+    const startDateIndex = headers.findIndex(h => h && String(h).trim().toLowerCase() === 'startdate');
+    const endDateIndex = headers.findIndex(h => h && String(h).trim().toLowerCase() === 'enddate');
     
     if (taIdIndex === -1) {
       Logger.log('Error: taId column not found in Ratings sheet.');
       return { status: 'error', message: 'Ratings sheet column configuration error.', ratings: [] };
+    }
+
+    // Helper function to format date as DD/MM/YYYY
+    function formatDateForReturn(dateValue) {
+      if (!dateValue) return '';
+      
+      let date;
+      if (dateValue instanceof Date) {
+        date = dateValue;
+      } else {
+        // Handle string dates
+        const dateStr = String(dateValue).trim();
+        if (dateStr.includes('/')) {
+          // Already in DD/MM/YYYY format, return as-is
+          return dateStr;
+        } else {
+          // Try to parse as Date
+          date = new Date(dateStr);
+        }
+      }
+      
+      if (date && !isNaN(date.getTime())) {
+        // Format as DD/MM/YYYY
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+      }
+      
+      return String(dateValue); // Return original if can't format
     }
 
     // Filter ratings for the specified TA
@@ -272,7 +304,14 @@ function getTARatingsLogic(taId) {
         const rating = {};
         for (let j = 0; j < headers.length; j++) {
           if (headers[j]) {
-            rating[headers[j]] = row[j];
+            let value = row[j];
+            
+            // Format dates specifically
+            if (j === startDateIndex || j === endDateIndex) {
+              value = formatDateForReturn(value);
+            }
+            
+            rating[headers[j]] = value;
           }
         }
         taRatings.push(rating);
@@ -294,6 +333,37 @@ function getTARatingsLogic(taId) {
 function submitRatingLogic(data) {
   try {
     if (!data.taId || !data.raterPhone || !data.raterType) return { error: 'Missing required fields', status: 'error' };
+    
+    // Helper function to format date as DD/MM/YYYY
+    function formatDateForStorage(dateValue) {
+      if (!dateValue) return '';
+      
+      let date;
+      if (dateValue instanceof Date) {
+        date = dateValue;
+      } else {
+        // Handle string dates
+        const dateStr = String(dateValue).trim();
+        if (dateStr.includes('/')) {
+          // Already in DD/MM/YYYY format, return as-is
+          return dateStr;
+        } else {
+          // Try to parse as Date (handles YYYY-MM-DD format)
+          date = new Date(dateStr);
+        }
+      }
+      
+      if (date && !isNaN(date.getTime())) {
+        // Format as DD/MM/YYYY
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+      }
+      
+      return String(dateValue); // Return original if can't format
+    }
+    
     let sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.RATINGS);
     if (!sheet) {
       Logger.log('Ratings sheet not found, creating it.');
@@ -316,6 +386,10 @@ function submitRatingLogic(data) {
         return { status: 'error', message: 'Ratings sheet column configuration error.' };
     }
 
+    // Format the input dates consistently
+    const formattedStartDate = formatDateForStorage(data.startDate);
+    const formattedEndDate = formatDateForStorage(data.endDate);
+
     // Check for duplicate rating (same TA, rater, and overlapping date range)
     let existingRating = false;
     for (let i = 1; i < allRatings.length; i++) {
@@ -327,12 +401,22 @@ function submitRatingLogic(data) {
           String(row[raterTypeIndex]).trim() === String(data.raterType).trim()) {
         
         // Check for date range overlap if both current and existing ratings have date ranges
-        if (data.startDate && data.endDate && startDateIndex !== -1 && endDateIndex !== -1 && 
+        if (formattedStartDate && formattedEndDate && startDateIndex !== -1 && endDateIndex !== -1 && 
             row[startDateIndex] && row[endDateIndex]) {
-          const existingStart = new Date(row[startDateIndex]);
-          const existingEnd = new Date(row[endDateIndex]);
-          const newStart = new Date(data.startDate);
-          const newEnd = new Date(data.endDate);
+          const existingStartFormatted = formatDateForStorage(row[startDateIndex]);
+          const existingEndFormatted = formatDateForStorage(row[endDateIndex]);
+          
+          // Check for exact match or overlap
+          if (existingStartFormatted === formattedStartDate && existingEndFormatted === formattedEndDate) {
+            Logger.log('Exact date range match detected.');
+            return { status: 'error', message: 'You have already rated this TA for this period' };
+          }
+          
+          // Parse dates for overlap check
+          const existingStart = parseDate(existingStartFormatted);
+          const existingEnd = parseDate(existingEndFormatted);
+          const newStart = parseDate(formattedStartDate);
+          const newEnd = parseDate(formattedEndDate);
           
           // Check for overlap: new period overlaps with existing period
           if (newStart <= existingEnd && newEnd >= existingStart) {
@@ -355,7 +439,7 @@ function submitRatingLogic(data) {
     // per user type for different date ranges
 
     const ratingId = Utilities.getUuid();
-    // Updated data order to include startDate and endDate
+    // Updated data order to include startDate and endDate with proper formatting
     sheet.appendRow([
       ratingId, 
       data.taId, 
@@ -363,8 +447,8 @@ function submitRatingLogic(data) {
       data.raterPhone, 
       data.raterName || '', 
       data.raterType, 
-      data.startDate || '', 
-      data.endDate || '', 
+      formattedStartDate, 
+      formattedEndDate, 
       data.timestamp || new Date().toISOString(), 
       data.discipline || 0, 
       data.ethics || 0, 
@@ -379,6 +463,17 @@ function submitRatingLogic(data) {
     Logger.log('Error in submitRatingLogic: ' + error.message + '\nStack: ' + error.stack);
     return { status: 'error', message: 'Failed to submit rating: ' + error.message };
   }
+}
+
+// Helper function to parse DD/MM/YYYY date strings
+function parseDate(dateString) {
+  if (!dateString) return new Date(0);
+  const parts = dateString.split('/');
+  if (parts.length === 3) {
+    // DD/MM/YYYY format
+    return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+  }
+  return new Date(dateString);
 }
 
 // Get review periods for a specific TA and user type
@@ -415,6 +510,36 @@ function getReviewPeriodsLogic(taId, raterType) {
       return { status: 'error', message: 'Ratings sheet configuration error', periods: [] };
     }
 
+    // Helper function to format date as DD/MM/YYYY
+    function formatDateForReturn(dateValue) {
+      if (!dateValue) return '';
+      
+      let date;
+      if (dateValue instanceof Date) {
+        date = dateValue;
+      } else {
+        // Handle string dates
+        const dateStr = String(dateValue).trim();
+        if (dateStr.includes('/')) {
+          // Already in DD/MM/YYYY format, return as-is
+          return dateStr;
+        } else {
+          // Try to parse as Date
+          date = new Date(dateStr);
+        }
+      }
+      
+      if (date && !isNaN(date.getTime())) {
+        // Format as DD/MM/YYYY
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+      }
+      
+      return String(dateValue); // Return original if can't format
+    }
+
     // Filter review periods for the specified TA and user type
     const reviewPeriods = [];
     for (let i = 1; i < allRatings.length; i++) {
@@ -427,8 +552,8 @@ function getReviewPeriodsLogic(taId, raterType) {
           periodId: ratingIdIndex !== -1 ? row[ratingIdIndex] : row[timestampIndex] || i.toString(),
           taId: row[taIdIndex],
           raterType: row[raterTypeIndex],
-          startDate: startDateIndex !== -1 ? row[startDateIndex] : '',
-          endDate: endDateIndex !== -1 ? row[endDateIndex] : '',
+          startDate: formatDateForReturn(startDateIndex !== -1 ? row[startDateIndex] : ''),
+          endDate: formatDateForReturn(endDateIndex !== -1 ? row[endDateIndex] : ''),
           timestamp: timestampIndex !== -1 ? row[timestampIndex] : ''
         };
         

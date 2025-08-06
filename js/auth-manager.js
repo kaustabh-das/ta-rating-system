@@ -30,6 +30,18 @@ class AuthManager {
                 const userInfo = `${appState.currentUserName} (${appState.currentUserType})`;
                 domElements.updateUserDisplays(userInfo);
                 
+                // Clear any existing rating displays from previous user
+                const existingRatingDisplay = document.getElementById('existingRatingDisplay');
+                if (existingRatingDisplay) {
+                    existingRatingDisplay.remove();
+                }
+                
+                // Hide rating controls if visible
+                const ratingControls = document.getElementById('ratingControls');
+                if (ratingControls) {
+                    ratingControls.style.display = 'none';
+                }
+                
                 // Load TA list if needed
                 if (appState.taList.length === 0) {
                     await APIService.fetchTAList();

@@ -155,6 +155,7 @@ class APIService {
             const data = await response.json();
             
             // Normalize date formats for all periods
+            console.log("Fetched review periods:", data.periods);
             const normalizedPeriods = (data.periods || []).map(period => ({
                 ...period,
                 startDate: DateUtils.formatDateStringCompact(period.startDate),

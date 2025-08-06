@@ -31,7 +31,24 @@ class UIUtils {
     static resetForm(form) {
         if (form) {
             form.reset();
+            // Also clear any error highlighting when form is reset
+            UIUtils.clearFormErrorHighlighting(form);
         }
+    }
+
+    // Clear error highlighting from a specific form
+    static clearFormErrorHighlighting(form) {
+        if (!form) return;
+        
+        // Remove error class from all rating groups within this form
+        form.querySelectorAll('.rating-group.error').forEach(group => {
+            group.classList.remove('error');
+        });
+        
+        // Remove error class from form groups (comments) within this form
+        form.querySelectorAll('.form-group.error').forEach(group => {
+            group.classList.remove('error');
+        });
     }
 
     static validateRequiredFields(fields) {
@@ -140,6 +157,7 @@ class UIUtils {
     // Dropdown utilities
     static createDropdown(options, onSelect, placeholder = 'Select...') {
         const dropdownContainer = document.createElement('div');
+        dropdownContainer.className = 'dropdown-container';
         dropdownContainer.style.position = 'relative';
         
         const dropdownButton = document.createElement('button');

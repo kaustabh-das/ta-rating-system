@@ -87,11 +87,32 @@
         <div class="content">
             <h2 id="selectedTAName"></h2>
             <div id="reviewPeriodDisplay" class="review-period-display" style="margin-bottom: 20px; padding: 10px; background-color: #f0f8ff; border: 1px solid #007bff; border-radius: 5px; color: #007bff; font-weight: bold;"></div>
+            
+            <!-- Officer-specific sections for mentor and officer ratings -->
+            <div id="mentorRatingsSection" class="ratings-section" style="display: none;">
+                <div class="section-header">
+                    <h3>Mentor Ratings</h3>
+                    <div class="section-controls">
+                        <div id="mentorRatingControls" class="rating-controls"></div>
+                    </div>
+                </div>
+                <div id="mentorRatingDisplay" class="rating-display"></div>
+            </div>
+            
+            <div id="officerRatingsSection" class="ratings-section" style="display: none;">
+                <div class="section-header">
+                    <h3>Officer Ratings</h3>
+                    <div class="section-controls">
+                        <div id="officerRatingControls" class="rating-controls"></div>
+                    </div>
+                </div>
+                <div id="officerRatingDisplay" class="rating-display"></div>
+            </div>
             <form id="ratingForm">
                 <div class="rating-group">
                     <label>Discipline</label>
                     <div class="star-rating">
-                        <input type="radio" id="discipline5" name="discipline" value="5" required><label for="discipline5">★</label>
+                        <input type="radio" id="discipline5" name="discipline" value="5"><label for="discipline5">★</label>
                         <input type="radio" id="discipline4" name="discipline" value="4"><label for="discipline4">★</label>
                         <input type="radio" id="discipline3" name="discipline" value="3"><label for="discipline3">★</label>
                         <input type="radio" id="discipline2" name="discipline" value="2"><label for="discipline2">★</label>
@@ -102,7 +123,7 @@
                 <div class="rating-group">
                     <label>Ethics</label>
                     <div class="star-rating">
-                        <input type="radio" id="ethics5" name="ethics" value="5" required><label for="ethics5">★</label>
+                        <input type="radio" id="ethics5" name="ethics" value="5"><label for="ethics5">★</label>
                         <input type="radio" id="ethics4" name="ethics" value="4"><label for="ethics4">★</label>
                         <input type="radio" id="ethics3" name="ethics" value="3"><label for="ethics3">★</label>
                         <input type="radio" id="ethics2" name="ethics" value="2"><label for="ethics2">★</label>
@@ -113,7 +134,7 @@
                 <div class="rating-group">
                     <label>Knowledge</label>
                     <div class="star-rating">
-                        <input type="radio" id="knowledge5" name="knowledge" value="5" required><label for="knowledge5">★</label>
+                        <input type="radio" id="knowledge5" name="knowledge" value="5"><label for="knowledge5">★</label>
                         <input type="radio" id="knowledge4" name="knowledge" value="4"><label for="knowledge4">★</label>
                         <input type="radio" id="knowledge3" name="knowledge" value="3"><label for="knowledge3">★</label>
                         <input type="radio" id="knowledge2" name="knowledge" value="2"><label for="knowledge2">★</label>
@@ -124,7 +145,7 @@
                 <div class="rating-group">
                     <label>Communication</label>
                     <div class="star-rating">
-                        <input type="radio" id="communication5" name="communication" value="5" required><label for="communication5">★</label>
+                        <input type="radio" id="communication5" name="communication" value="5"><label for="communication5">★</label>
                         <input type="radio" id="communication4" name="communication" value="4"><label for="communication4">★</label>
                         <input type="radio" id="communication3" name="communication" value="3"><label for="communication3">★</label>
                         <input type="radio" id="communication2" name="communication" value="2"><label for="communication2">★</label>
@@ -135,7 +156,7 @@
                 <div class="rating-group">
                     <label>Teamwork</label>
                     <div class="star-rating">
-                        <input type="radio" id="teamwork5" name="teamwork" value="5" required><label for="teamwork5">★</label>
+                        <input type="radio" id="teamwork5" name="teamwork" value="5"><label for="teamwork5">★</label>
                         <input type="radio" id="teamwork4" name="teamwork" value="4"><label for="teamwork4">★</label>
                         <input type="radio" id="teamwork3" name="teamwork" value="3"><label for="teamwork3">★</label>
                         <input type="radio" id="teamwork2" name="teamwork" value="2"><label for="teamwork2">★</label>
@@ -144,7 +165,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="comments">Comments (Optional)</label>
+                    <label for="comments">Comments</label>
                     <textarea id="comments" rows="4" placeholder="Enter your feedback here"></textarea>
                 </div>
 
@@ -200,7 +221,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Select Review Period</h3>
-                <span class="close" onclick="closeDateRangeModal()">&times;</span>
+                <span class="close" onclick="ScreenManager.closeDateRangeModal()">&times;</span>
             </div>
             <div class="modal-body">
                 <div class="form-group">
@@ -213,7 +234,7 @@
                 </div>
                 <div id="dateRangeError" class="error-message"></div>
                 <div class="modal-footer">
-                    <button type="button" onclick="closeDateRangeModal()" class="secondary-btn">Cancel</button>
+                    <button type="button" onclick="ScreenManager.closeDateRangeModal()" class="secondary-btn">Cancel</button>
                     <button type="button" id="proceedWithDatesBtn" class="primary-btn" disabled>Proceed</button>
                 </div>
             </div>
@@ -232,6 +253,7 @@
     <script src="js/auth-manager.js" defer></script>
     <script src="js/rating-manager.js" defer></script>
     <script src="js/review-manager.js" defer></script>
+    <script src="js/officer-rating-manager.js" defer></script>
     <script src="js/event-handlers.js" defer></script>
     <script src="js/app.js" defer></script>
 </body>
