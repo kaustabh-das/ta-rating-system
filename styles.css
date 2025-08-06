@@ -238,6 +238,20 @@ button:active {
     border-color: var(--danger-color);
 }
 
+/* Rating group error highlighting */
+#ratingForm .rating-group.error {
+    border: 3px solid #f44336 !important;
+    background-color: rgba(220, 53, 69, 0.2) !important;
+    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+    transform: translateX(0);
+}
+
+/* Form group error highlighting for textarea */
+#ratingForm .form-group.error textarea {
+    border-color: #f44336 !important;
+    background-color: rgba(220, 53, 69, 0.1) !important;
+}
+
 /* Rating Specific Styles */
 .rating-group {
     margin-bottom: 28px;
@@ -486,4 +500,338 @@ button:active {
     padding: 30px;
     max-width: 1200px;
     margin: 0 auto;
+}
+
+/* Modal Styles */
+.modal {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    width: 90%;
+    max-width: 500px;
+    max-height: 90%;
+    overflow-y: auto;
+}
+
+.modal-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--medium-gray);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--light-gray);
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: var(--text-color);
+}
+
+.close {
+    color: var(--dark-gray);
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.close:hover {
+    color: var(--danger-color);
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-footer {
+    padding: 15px 20px;
+    border-top: 1px solid var(--medium-gray);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* Review Management Styles */
+.review-item {
+    background-color: var(--light-gray);
+    border: 1px solid var(--medium-gray);
+    border-radius: var(--radius);
+    padding: 15px;
+    margin: 10px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: var(--transition);
+}
+
+.review-item:hover {
+    background-color: #f0f0f0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.review-period {
+    font-weight: bold;
+    color: var(--primary-color);
+    font-size: 1.1em;
+}
+
+.review-info {
+    color: var(--dark-gray);
+    font-size: 0.9em;
+    margin-top: 5px;
+}
+
+.review-period-display {
+    background-color: #f0f8ff;
+    border: 1px solid var(--primary-color);
+    border-radius: var(--radius);
+    padding: 10px;
+    margin-bottom: 20px;
+    color: var(--primary-color);
+    font-weight: bold;
+    text-align: center;
+}
+
+/* Secondary Button */
+.secondary-btn, .btn-secondary {
+    background-color: var(--medium-gray);
+    color: var(--dark-gray);
+    border: 1px solid var(--dark-gray);
+    padding: 8px 16px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 14px;
+}
+
+.secondary-btn:hover, .btn-secondary:hover {
+    background-color: var(--dark-gray);
+    color: var(--white);
+}
+
+/* Date Input Styles */
+input[type="date"] {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid var(--medium-gray);
+    border-radius: var(--radius);
+    font-size: 16px;
+    transition: var(--transition);
+    background-color: var(--white);
+}
+
+input[type="date"]:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+}
+
+/* Error message specific to date range */
+#dateRangeError {
+    color: var(--danger-color);
+    font-size: 14px;
+    margin-top: 10px;
+    padding: 8px;
+    background-color: #ffeaea;
+    border: 1px solid #ffcdd2;
+    border-radius: 4px;
+    display: none;
+}
+
+/* Rating Controls Styles */
+#ratingControls {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 20px !important;
+    padding: 15px !important;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+    border-radius: 8px !important;
+    border: 1px solid #dee2e6 !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Date Range Dropdown Button */
+#ratingControls .secondary-btn {
+    background: linear-gradient(135deg, #495057 0%, #6c757d 100%) !important;
+    color: white !important;
+    border: none !important;
+    padding: 8px 12px !important;
+    border-radius: 6px !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    min-width: 180px !important;
+    text-align: left !important;
+    position: relative !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+#ratingControls .secondary-btn:hover {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Add New Rating Button */
+#addNewRatingBtn {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+    color: white !important;
+    border: none !important;
+    padding: 8px 12px !important;
+    border-radius: 6px !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+    width: auto !important;
+}
+
+#addNewRatingBtn:hover {
+    background: linear-gradient(135deg, #20c997 0%, #28a745 100%) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Review Period Display */
+.review-period-display {
+    margin-bottom: 20px !important;
+    padding: 12px 16px !important;
+    background: linear-gradient(135deg, #e3f2fd 0%, #f0f8ff 100%) !important;
+    border: 2px solid #2196f3 !important;
+    border-radius: 8px !important;
+    color: #1565c0 !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    text-align: center !important;
+    box-shadow: 0 2px 4px rgba(33, 150, 243, 0.1) !important;
+}
+
+/* Compact Button Styles */
+.compact-btn {
+    padding: 6px 12px !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    border-radius: 5px !important;
+    min-width: auto !important;
+    width: auto !important;
+}
+
+/* Dropdown Menu Improvements */
+#ratingControls .dropdown-menu {
+    background: white !important;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 6px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    z-index: 1050 !important;
+    min-width: 200px !important;
+    max-height: 300px !important;
+    overflow-y: auto !important;
+}
+
+#ratingControls .dropdown-menu div {
+    padding: 8px 12px !important;
+    font-size: 13px !important;
+    color: #495057 !important;
+    border-bottom: 1px solid #f8f9fa !important;
+    transition: background-color 0.2s ease !important;
+}
+
+#ratingControls .dropdown-menu div:hover {
+    background-color: #f8f9fa !important;
+    color: #007bff !important;
+}
+
+#ratingControls .dropdown-menu div:last-child {
+    border-bottom: none !important;
+}
+
+/* Officer Rating Sections */
+.ratings-section {
+    margin-bottom: 30px;
+    border: 1px solid var(--medium-gray);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background-color: var(--white);
+}
+
+.section-header {
+    background-color: var(--light-gray);
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--medium-gray);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.section-header h3 {
+    color: var(--primary-color);
+    margin: 0;
+    font-size: 1.2em;
+    font-weight: 500;
+}
+
+.section-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.rating-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.rating-display {
+    padding: 20px;
+    min-height: 50px;
+}
+
+.rating-display:empty::before {
+    content: "No ratings available for this section";
+    color: var(--dark-gray);
+    font-style: italic;
+    opacity: 0.7;
+}
+
+/* Section-specific styling */
+#mentorRatingsSection .section-header {
+    background-color: rgba(76, 201, 240, 0.1);
+    border-bottom-color: rgba(76, 201, 240, 0.3);
+}
+
+#mentorRatingsSection .section-header h3 {
+    color: var(--accent-color);
+}
+
+#mentorRatingsSection .section-header h3::after {
+    content: " (View Only)";
+    font-size: 0.8em;
+    font-weight: normal;
+    color: #666;
+    font-style: italic;
+}
+
+#officerRatingsSection .section-header {
+    background-color: rgba(67, 97, 238, 0.1);
+    border-bottom-color: rgba(67, 97, 238, 0.3);
+}
+
+#officerRatingsSection .section-header h3 {
+    color: var(--primary-color);
 }

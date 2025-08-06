@@ -7,6 +7,10 @@ let currentUserPhone = '';
 let currentUserName = '';
 let selectedTAId = '';
 let selectedTAName = '';
+let selectedStartDate = '';
+let selectedEndDate = '';
+let existingReviewPeriods = [];
+const MINIMUM_REVIEW_PERIOD_DAYS = 90; // Configurable minimum period
 const apiUrl = 'https://script.google.com/macros/s/AKfycbz09ywNpQETLLvf178Cf50Kp2MRZBMUKo35Jc44Zvk5k0Na6ePZJ5p6hHsmtlSrzTzw/exec';
 
 // DOM Elements
@@ -20,9 +24,12 @@ const loginContainer = document.getElementById('loginContainer');
 const taSelectionContainer = document.getElementById('taSelectionContainer');
 const ratingContainer = document.getElementById('ratingContainer');
 const confirmationContainer = document.getElementById('confirmationContainer');
+const reviewManagementContainer = document.getElementById('reviewManagementContainer');
+const dateRangeModal = document.getElementById('dateRangeModal');
 const userDisplayName = document.getElementById('userDisplayName');
 const userDisplayName2 = document.getElementById('userDisplayName2');
 const userDisplayName3 = document.getElementById('userDisplayName3');
+const userDisplayName4 = document.getElementById('userDisplayName4');
 const taSelect = document.getElementById('taSelect');
 const taSelectError = document.getElementById('taSelectError');
 const proceedToRatingBtn = document.getElementById('proceedToRatingBtn');
@@ -35,6 +42,16 @@ const logoutButton3 = document.getElementById('logoutButton3');
 const backToSelectionBtn = document.getElementById('backToSelectionBtn');
 const rateAnotherBtn = document.getElementById('rateAnotherBtn');
 const loadingOverlay = document.getElementById('loadingOverlay');
+
+// New DOM elements for date range functionality
+const startDateInput = document.getElementById('startDate');
+const endDateInput = document.getElementById('endDate');
+const dateRangeError = document.getElementById('dateRangeError');
+const addReviewBtn = document.getElementById('addReviewBtn');
+const proceedWithDatesBtn = document.getElementById('proceedWithDatesBtn');
+const existingReviewsList = document.getElementById('existingReviewsList');
+const reviewManagementTAName = document.getElementById('reviewManagementTAName');
+const reviewPeriodDisplay = document.getElementById('reviewPeriodDisplay');
 
 // Initialize the app
 window.addEventListener('DOMContentLoaded', initialize);
@@ -237,6 +254,253 @@ async function submitRating(ratingData) {
     }
 }
 
+// Fetch existing review periods for a TA and user type
+async function fetchExistingReviewPeriods() {
+    try {
+        showLoading('Loading existing reviews...');
+        
+        const response = await fetch(`${apiUrl}?action=getReviewPeriods&taId=${selectedTAId}&raterType=${currentUserType}`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch review periods');
+        }
+        
+        const data = await response.json();
+        existingReviewPeriods = data.periods || [];
+        
+        hideLoading();
+    } catch (error) {
+        console.error('Error fetching review periods:', error);
+        existingReviewPeriods = [];
+        hideLoading();
+    }
+}
+
+// Date utility functions
+function parseDate(dateString) {
+    // Parse DD/MM/YYYY format
+    const parts = dateString.split('/');
+    return new Date(parts[2], parts[1] - 1, parts[0]);
+}
+
+function formatDateForInput(date) {
+    // Format for HTML date input (YYYY-MM-DD)
+    return date.toISOString().split('T')[0];
+}
+
+function formatDateForDisplay(date) {
+    // Format as DD/MM/YYYY
+    return date.toLocaleDateString('en-GB');
+}
+
+// Date validation functions
+function setDateConstraints() {
+    const today = new Date();
+    const maxDate = formatDateForInput(today);
+    
+    // Set max date as today for both inputs
+    startDateInput.max = maxDate;
+    endDateInput.max = maxDate;
+    
+    if (existingReviewPeriods.length > 0) {
+        // Find the latest end date
+        const latestEndDate = existingReviewPeriods.reduce((latest, period) => {
+            const periodEndDate = parseDate(period.endDate);
+            return periodEndDate > latest ? periodEndDate : latest;
+        }, new Date(0));
+        
+        // Start date must be after latest end date
+        const minStartDate = new Date(latestEndDate);
+        minStartDate.setDate(minStartDate.getDate() + 1);
+        startDateInput.min = formatDateForInput(minStartDate);
+    } else {
+        // No existing reviews, can start from any past date
+        startDateInput.min = '2020-01-01'; // Reasonable minimum
+    }
+}
+
+function validateDateRange() {
+    const startDate = new Date(startDateInput.value);
+    const endDate = new Date(endDateInput.value);
+    
+    dateRangeError.style.display = 'none';
+    
+    if (!startDateInput.value || !endDateInput.value) {
+        return false;
+    }
+    
+    // Check if end date is after start date
+    if (endDate <= startDate) {
+        showDateError('End date must be after start date');
+        return false;
+    }
+    
+    // Check minimum period (exactly 90 days)
+    const daysDifference = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+    if (daysDifference < MINIMUM_REVIEW_PERIOD_DAYS) {
+        showDateError(`Review period must be at least ${MINIMUM_REVIEW_PERIOD_DAYS} days`);
+        return false;
+    }
+    
+    // Check for overlaps with existing periods
+    const hasOverlap = existingReviewPeriods.some(period => {
+        const periodStart = parseDate(period.startDate);
+        const periodEnd = parseDate(period.endDate);
+        
+        return (startDate <= periodEnd && endDate >= periodStart);
+    });
+    
+    if (hasOverlap) {
+        showDateError('Date range overlaps with existing review period');
+        return false;
+    }
+    
+    return true;
+}
+
+function showDateError(message) {
+    dateRangeError.textContent = message;
+    dateRangeError.style.display = 'block';
+}
+
+// Review Management Screen Functions
+async function showReviewManagement() {
+    // Hide other containers
+    loginContainer.style.display = 'none';
+    taSelectionContainer.style.display = 'none';
+    ratingContainer.style.display = 'none';
+    confirmationContainer.style.display = 'none';
+    reviewManagementContainer.style.display = 'block';
+    
+    // Update TA name display
+    reviewManagementTAName.textContent = selectedTAName;
+    
+    // Fetch existing review periods for this TA and current user type
+    await fetchExistingReviewPeriods();
+    
+    // Display existing reviews and add button
+    displayExistingReviews();
+    
+    // Set body style
+    document.body.className = '';
+    document.body.style.display = 'block';
+    document.body.style.height = 'auto';
+    document.body.style.minHeight = '100vh';
+    document.body.style.overflow = 'auto';
+}
+
+function displayExistingReviews() {
+    const reviewsList = existingReviewsList;
+    
+    // Clear existing content
+    reviewsList.innerHTML = '';
+    
+    if (existingReviewPeriods.length === 0) {
+        // No reviews - center the Add Review button
+        reviewsList.innerHTML = '<p>No reviews found for this TA.</p>';
+        addReviewBtn.textContent = '+ Add First Review';
+        addReviewBtn.style.margin = '20px auto';
+        addReviewBtn.style.display = 'block';
+    } else {
+        // Show existing reviews
+        existingReviewPeriods.forEach(period => {
+            const reviewItem = document.createElement('div');
+            reviewItem.className = 'review-item';
+            reviewItem.style.display = 'flex';
+            reviewItem.style.justifyContent = 'space-between';
+            reviewItem.style.alignItems = 'center';
+            reviewItem.style.padding = '10px';
+            reviewItem.style.margin = '10px 0';
+            reviewItem.style.border = '1px solid #ddd';
+            reviewItem.style.borderRadius = '5px';
+            reviewItem.style.backgroundColor = '#f9f9f9';
+            
+            reviewItem.innerHTML = `
+                <div>
+                    <div class="review-period" style="font-weight: bold;">${period.startDate} - ${period.endDate}</div>
+                    <div class="review-info" style="color: #666; font-size: 0.9em;">${period.raterType} | ${new Date(period.timestamp).toLocaleDateString('en-GB')}</div>
+                </div>
+                <button onclick="viewReviewDetails('${period.periodId || period.timestamp}')" class="btn-secondary" style="padding: 5px 10px; background-color: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer;">View</button>
+            `;
+            reviewsList.appendChild(reviewItem);
+        });
+        
+        // Add button at top-right
+        addReviewBtn.textContent = '+ Add Review';
+        addReviewBtn.style.margin = '0';
+        addReviewBtn.style.float = 'right';
+        addReviewBtn.style.marginBottom = '20px';
+    }
+}
+
+function showDateRangeModal() {
+    dateRangeModal.style.display = 'block';
+    
+    // Set minimum start date based on last review end date
+    setDateConstraints();
+    
+    // Reset form
+    startDateInput.value = '';
+    endDateInput.value = '';
+    dateRangeError.style.display = 'none';
+    proceedWithDatesBtn.disabled = true;
+}
+
+function showRatingScreenWithDateRange() {
+    // Hide other containers
+    reviewManagementContainer.style.display = 'none';
+    dateRangeModal.style.display = 'none';
+    ratingContainer.style.display = 'block';
+    
+    // Update displays
+    selectedTANameDisplay.textContent = selectedTAName;
+    reviewPeriodDisplay.textContent = `${selectedStartDate} - ${selectedEndDate}`;
+    
+    // Reset and show form
+    ratingForm.reset();
+    ratingForm.style.display = 'block';
+    
+    // Set body style for scrollable content
+    document.body.className = '';
+    document.body.style.display = 'block';
+    document.body.style.height = 'auto';
+    document.body.style.minHeight = '100vh';
+    document.body.style.overflow = 'auto';
+}
+
+// New function to show rating screen with existing data display
+async function showRatingScreenWithPreviousData() {
+    // Hide other containers
+    reviewManagementContainer.style.display = 'none';
+    dateRangeModal.style.display = 'none';
+    ratingContainer.style.display = 'block';
+    
+    // Update displays
+    selectedTANameDisplay.textContent = selectedTAName;
+    
+    // Fetch existing review periods to show in dropdown
+    await fetchExistingReviewPeriods();
+    
+    // Create rating controls (dropdown and add button)
+    createRatingControls();
+    
+    // Show the most recent rating by default if available
+    if (existingReviewPeriods.length > 0) {
+        await displayRatingForPeriod(existingReviewPeriods[0]);
+    } else {
+        // No existing ratings, show new rating form
+        reviewPeriodDisplay.textContent = 'No previous ratings found';
+        ratingForm.style.display = 'block';
+        ratingForm.reset();
+    }
+    
+    // Set body style for scrollable content
+    document.body.className = '';
+    document.body.style.display = 'block';
+    document.body.style.height = 'auto';
+    document.body.style.minHeight = '100vh';
+    document.body.style.overflow = 'auto';
+}
+
 // Populate TA dropdown
 function populateTADropdown() {
     // Clear existing options except the first one
@@ -253,6 +517,295 @@ function populateTADropdown() {
     });
 }
 
+// Create rating controls (dropdown and add new button)
+function createRatingControls() {
+    // Remove existing controls if any
+    const existingControls = document.getElementById('ratingControls');
+    if (existingControls) {
+        existingControls.remove();
+    }
+    
+    // Create controls container
+    const controlsContainer = document.createElement('div');
+    controlsContainer.id = 'ratingControls';
+    controlsContainer.style.display = 'flex';
+    controlsContainer.style.justifyContent = 'space-between';
+    controlsContainer.style.alignItems = 'center';
+    controlsContainer.style.marginBottom = '20px';
+    controlsContainer.style.padding = '10px';
+    controlsContainer.style.backgroundColor = '#f8f9fa';
+    controlsContainer.style.borderRadius = '5px';
+    controlsContainer.style.border = '1px solid #dee2e6';
+    
+    // Create date range dropdown (left side)
+    const dropdownContainer = document.createElement('div');
+    dropdownContainer.style.position = 'relative';
+    
+    const dropdownButton = document.createElement('button');
+    dropdownButton.id = 'dateRangeDropdown';
+    dropdownButton.type = 'button';
+    dropdownButton.className = 'secondary-btn';
+    dropdownButton.style.padding = '8px 16px';
+    dropdownButton.style.backgroundColor = '#6c757d';
+    dropdownButton.style.color = 'white';
+    dropdownButton.style.border = 'none';
+    dropdownButton.style.borderRadius = '5px';
+    dropdownButton.style.cursor = 'pointer';
+    dropdownButton.textContent = existingReviewPeriods.length > 0 ? 
+        `${existingReviewPeriods[0].startDate} - ${existingReviewPeriods[0].endDate} ▼` : 
+        'No previous ratings ▼';
+    
+    const dropdownMenu = document.createElement('div');
+    dropdownMenu.id = 'dateRangeDropdownMenu';
+    dropdownMenu.style.position = 'absolute';
+    dropdownMenu.style.top = '100%';
+    dropdownMenu.style.left = '0';
+    dropdownMenu.style.backgroundColor = 'white';
+    dropdownMenu.style.border = '1px solid #ccc';
+    dropdownMenu.style.borderRadius = '5px';
+    dropdownMenu.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+    dropdownMenu.style.zIndex = '1000';
+    dropdownMenu.style.minWidth = '200px';
+    dropdownMenu.style.display = 'none';
+    
+    // Populate dropdown menu with existing periods
+    existingReviewPeriods.forEach((period, index) => {
+        const menuItem = document.createElement('div');
+        menuItem.style.padding = '10px 15px';
+        menuItem.style.cursor = 'pointer';
+        menuItem.style.borderBottom = index < existingReviewPeriods.length - 1 ? '1px solid #eee' : 'none';
+        menuItem.textContent = `${period.startDate} - ${period.endDate}`;
+        
+        menuItem.addEventListener('mouseenter', function() {
+            this.style.backgroundColor = '#f8f9fa';
+        });
+        
+        menuItem.addEventListener('mouseleave', function() {
+            this.style.backgroundColor = 'white';
+        });
+        
+        menuItem.addEventListener('click', function() {
+            dropdownButton.textContent = `${period.startDate} - ${period.endDate} ▼`;
+            dropdownMenu.style.display = 'none';
+            displayRatingForPeriod(period);
+        });
+        
+        dropdownMenu.appendChild(menuItem);
+    });
+    
+    // Dropdown toggle functionality
+    dropdownButton.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const isVisible = dropdownMenu.style.display === 'block';
+        dropdownMenu.style.display = isVisible ? 'none' : 'block';
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function() {
+        dropdownMenu.style.display = 'none';
+    });
+    
+    dropdownContainer.appendChild(dropdownButton);
+    dropdownContainer.appendChild(dropdownMenu);
+    
+    // Create Add New Rating button (right side)
+    const addNewButton = document.createElement('button');
+    addNewButton.id = 'addNewRatingBtn';
+    addNewButton.type = 'button';
+    addNewButton.className = 'primary-btn';
+    addNewButton.style.padding = '8px 16px';
+    addNewButton.style.backgroundColor = '#007bff';
+    addNewButton.style.color = 'white';
+    addNewButton.style.border = 'none';
+    addNewButton.style.borderRadius = '5px';
+    addNewButton.style.cursor = 'pointer';
+    addNewButton.textContent = '+ Add New Rating';
+    
+    addNewButton.addEventListener('click', function() {
+        showDateRangeModal();
+    });
+    
+    controlsContainer.appendChild(dropdownContainer);
+    controlsContainer.appendChild(addNewButton);
+    
+    // Insert controls after TA name but before review period display
+    const contentDiv = ratingContainer.querySelector('.content');
+    const taNameElement = document.getElementById('selectedTAName');
+    taNameElement.parentNode.insertBefore(controlsContainer, taNameElement.nextSibling);
+}
+
+// Display rating data for a specific period
+async function displayRatingForPeriod(period) {
+    try {
+        showLoading('Loading rating data...');
+        
+        // Update period display
+        reviewPeriodDisplay.textContent = `${period.startDate} - ${period.endDate}`;
+        reviewPeriodDisplay.style.display = 'block';
+        
+        // Fetch all ratings for this TA
+        const response = await fetch(`${apiUrl}?action=getTARatings&taId=${selectedTAId}`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch ratings');
+        }
+        
+        const data = await response.json();
+        
+        // Find the specific rating for this period and user type
+        const periodRating = data.ratings.find(rating => 
+            rating.raterType === currentUserType &&
+            rating.startDate === period.startDate &&
+            rating.endDate === period.endDate
+        );
+        
+        if (periodRating) {
+            // Show existing rating data (read-only)
+            displayExistingRating(periodRating);
+            ratingForm.style.display = 'none';
+        } else {
+            // No rating found for this period, show empty form
+            reviewPeriodDisplay.textContent = `${period.startDate} - ${period.endDate} (No rating found)`;
+            ratingForm.style.display = 'block';
+            ratingForm.reset();
+        }
+        
+        hideLoading();
+    } catch (error) {
+        console.error('Error loading rating data:', error);
+        hideLoading();
+        reviewPeriodDisplay.textContent = `${period.startDate} - ${period.endDate} (Error loading)`;
+        ratingForm.style.display = 'none';
+    }
+}
+
+// Display existing rating data in a read-only format
+function displayExistingRating(rating) {
+    // Remove existing rating display if any
+    const existingDisplay = document.getElementById('existingRatingDisplay');
+    if (existingDisplay) {
+        existingDisplay.remove();
+    }
+    
+    // Create rating display container
+    const ratingDisplay = document.createElement('div');
+    ratingDisplay.id = 'existingRatingDisplay';
+    ratingDisplay.style.marginTop = '20px';
+    ratingDisplay.style.padding = '20px';
+    ratingDisplay.style.border = '1px solid #ddd';
+    ratingDisplay.style.borderRadius = '5px';
+    ratingDisplay.style.backgroundColor = '#f8f9fa';
+    
+    // Create header
+    const header = document.createElement('h4');
+    header.textContent = 'Rating Details';
+    header.style.marginBottom = '15px';
+    header.style.color = '#495057';
+    ratingDisplay.appendChild(header);
+    
+    // Create rater info
+    const raterInfo = document.createElement('p');
+    raterInfo.innerHTML = `<strong>Rated by:</strong> ${rating.raterName} (${rating.raterType})<br>`;
+    raterInfo.innerHTML += `<strong>Date:</strong> ${new Date(rating.timestamp).toLocaleDateString('en-GB')}`;
+    raterInfo.style.marginBottom = '15px';
+    ratingDisplay.appendChild(raterInfo);
+    
+    // Create ratings table
+    const table = document.createElement('table');
+    table.style.width = '100%';
+    table.style.borderCollapse = 'collapse';
+    table.style.marginBottom = '15px';
+    
+    const thead = document.createElement('thead');
+    const headerRow = document.createElement('tr');
+    
+    const categoryHeader = document.createElement('th');
+    categoryHeader.textContent = 'Category';
+    categoryHeader.style.border = '1px solid #ddd';
+    categoryHeader.style.padding = '10px';
+    categoryHeader.style.backgroundColor = '#e9ecef';
+    categoryHeader.style.textAlign = 'left';
+    
+    const ratingHeader = document.createElement('th');
+    ratingHeader.textContent = 'Rating';
+    ratingHeader.style.border = '1px solid #ddd';
+    ratingHeader.style.padding = '10px';
+    ratingHeader.style.backgroundColor = '#e9ecef';
+    ratingHeader.style.textAlign = 'center';
+    
+    headerRow.appendChild(categoryHeader);
+    headerRow.appendChild(ratingHeader);
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+    
+    const tbody = document.createElement('tbody');
+    
+    const categories = [
+        { key: 'discipline', label: 'Discipline' },
+        { key: 'ethics', label: 'Ethics' },
+        { key: 'knowledge', label: 'Knowledge' },
+        { key: 'communication', label: 'Communication' },
+        { key: 'teamwork', label: 'Teamwork' }
+    ];
+    
+    categories.forEach(category => {
+        const row = document.createElement('tr');
+        
+        const categoryCell = document.createElement('td');
+        categoryCell.textContent = category.label;
+        categoryCell.style.border = '1px solid #ddd';
+        categoryCell.style.padding = '10px';
+        
+        const ratingCell = document.createElement('td');
+        const ratingValue = rating[category.key] || 0;
+        ratingCell.style.border = '1px solid #ddd';
+        ratingCell.style.padding = '10px';
+        ratingCell.style.textAlign = 'center';
+        
+        // Create star display
+        let starsHtml = '';
+        for (let i = 1; i <= 5; i++) {
+            if (i <= ratingValue) {
+                starsHtml += '<span style="color: #ffc107;">★</span>';
+            } else {
+                starsHtml += '<span style="color: #e9ecef;">★</span>';
+            }
+        }
+        starsHtml += ` (${ratingValue}/5)`;
+        ratingCell.innerHTML = starsHtml;
+        
+        row.appendChild(categoryCell);
+        row.appendChild(ratingCell);
+        tbody.appendChild(row);
+    });
+    
+    table.appendChild(tbody);
+    ratingDisplay.appendChild(table);
+    
+    // Add comments if any
+    if (rating.comments) {
+        const commentsSection = document.createElement('div');
+        commentsSection.style.marginTop = '15px';
+        
+        const commentsHeader = document.createElement('strong');
+        commentsHeader.textContent = 'Comments:';
+        commentsSection.appendChild(commentsHeader);
+        
+        const commentsText = document.createElement('p');
+        commentsText.textContent = rating.comments;
+        commentsText.style.marginTop = '5px';
+        commentsText.style.padding = '10px';
+        commentsText.style.backgroundColor = 'white';
+        commentsText.style.border = '1px solid #ddd';
+        commentsText.style.borderRadius = '3px';
+        commentsSection.appendChild(commentsText);
+        
+        ratingDisplay.appendChild(commentsSection);
+    }
+    
+    // Insert rating display after review period display
+    reviewPeriodDisplay.parentNode.insertBefore(ratingDisplay, reviewPeriodDisplay.nextSibling);
+}
+
 // Update user display elements
 function updateUserDisplays() {
     const userInfo = `${currentUserName} (${currentUserType})`;
@@ -262,6 +815,7 @@ function updateUserDisplays() {
     if (userDisplayName) userDisplayName.textContent = userInfo;
     if (userDisplayName2) userDisplayName2.textContent = userInfo;
     if (userDisplayName3) userDisplayName3.textContent = userInfo;
+    if (userDisplayName4) userDisplayName4.textContent = userInfo;
 }
 
 // Event Listeners
@@ -361,14 +915,8 @@ proceedToRatingBtn.addEventListener('click', async function() {
     const selectedOption = taSelect.options[taSelect.selectedIndex];
     selectedTAName = selectedOption.textContent;
     
-    // Update UI
-    selectedTANameDisplay.textContent = selectedTAName;
-    
-    // Fetch any existing ratings for this TA
-    const ratingsData = await fetchTARatings(selectedTAId);
-    
-    // Show rating screen (passing ratings data)
-    showRatingScreen(ratingsData);
+    // Go to Rating Screen with previous data display
+    await showRatingScreenWithPreviousData();
 });
 
 // Rating form submission
@@ -400,6 +948,8 @@ ratingForm.addEventListener('submit', async function(e) {
         raterPhone: currentUserPhone,
         raterName: currentUserName,
         raterType: currentUserType,
+        startDate: selectedStartDate,        // NEW
+        endDate: selectedEndDate,            // NEW
         discipline: parseInt(discipline),
         ethics: parseInt(ethics),
         knowledge: parseInt(knowledge),
@@ -433,17 +983,10 @@ backToSelectionBtn.addEventListener('click', function() {
     
     // Hide current screen and show TA selection screen
     ratingContainer.style.display = 'none';
-    taSelectionContainer.style.display = 'block';
+    showTASelection();
     
     // Reset form
     ratingForm.reset();
-    
-    // Update body style
-    document.body.className = 'centered';
-    document.body.style.display = 'flex';
-    document.body.style.height = '100vh';
-    document.body.style.alignItems = 'center';
-    document.body.style.justifyContent = 'center';
 });
 
 // Rate another button
@@ -454,6 +997,40 @@ rateAnotherBtn.addEventListener('click', function() {
 // Logout buttons
 [logoutButton, logoutButton2, logoutButton3].forEach(button => {
     button.addEventListener('click', logout);
+});
+
+// Date range functionality event listeners
+addReviewBtn.addEventListener('click', showDateRangeModal);
+
+startDateInput.addEventListener('change', function() {
+    if (startDateInput.value) {
+        // Set minimum end date to start date + minimum period
+        const startDate = new Date(startDateInput.value);
+        const minEndDate = new Date(startDate);
+        minEndDate.setDate(minEndDate.getDate() + MINIMUM_REVIEW_PERIOD_DAYS);
+        endDateInput.min = formatDateForInput(minEndDate);
+    }
+    
+    if (startDateInput.value && endDateInput.value) {
+        proceedWithDatesBtn.disabled = !validateDateRange();
+    }
+});
+
+endDateInput.addEventListener('change', function() {
+    if (startDateInput.value && endDateInput.value) {
+        proceedWithDatesBtn.disabled = !validateDateRange();
+    }
+});
+
+proceedWithDatesBtn.addEventListener('click', function() {
+    if (validateDateRange()) {
+        selectedStartDate = formatDateForDisplay(new Date(startDateInput.value));
+        selectedEndDate = formatDateForDisplay(new Date(endDateInput.value));
+        
+        // Hide modal and show rating screen
+        dateRangeModal.style.display = 'none';
+        showRatingScreenWithDateRange();
+    }
 });
 
 // Logout function
@@ -471,6 +1048,8 @@ function showLogin() {
     taSelectionContainer.style.display = 'none';
     ratingContainer.style.display = 'none';
     confirmationContainer.style.display = 'none';
+    reviewManagementContainer.style.display = 'none';
+    if (dateRangeModal) dateRangeModal.style.display = 'none';
     
     // Reset form fields
     loginForm.reset();
@@ -488,6 +1067,7 @@ function showTASelection() {
     taSelectionContainer.style.display = 'block';
     ratingContainer.style.display = 'none';
     confirmationContainer.style.display = 'none';
+    reviewManagementContainer.style.display = 'none';
     
     // Reset body style
     document.body.className = 'centered';
@@ -812,6 +1392,8 @@ function showConfirmationScreen() {
     taSelectionContainer.style.display = 'none';
     ratingContainer.style.display = 'none';
     confirmationContainer.style.display = 'block';
+    reviewManagementContainer.style.display = 'none';
+    if (dateRangeModal) dateRangeModal.style.display = 'none';
     
     // Reset body style
     document.body.className = 'centered';
@@ -819,4 +1401,19 @@ function showConfirmationScreen() {
     document.body.style.height = '100vh';
     document.body.style.alignItems = 'center';
     document.body.style.justifyContent = 'center';
+}
+
+// Helper function for viewing review details
+function viewReviewDetails(periodId) {
+    // This function can be enhanced later to show detailed review information
+    console.log('Viewing details for period:', periodId);
+    // For now, just alert the user
+    alert('Review details viewing will be implemented in the next update.');
+}
+
+// Helper function to close date range modal
+function closeDateRangeModal() {
+    if (dateRangeModal) {
+        dateRangeModal.style.display = 'none';
+    }
 } 
