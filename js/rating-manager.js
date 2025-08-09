@@ -11,14 +11,7 @@ class RatingManager {
         // Create controls container
         const controlsContainer = document.createElement('div');
         controlsContainer.id = 'ratingControls';
-        controlsContainer.style.display = 'flex';
-        controlsContainer.style.justifyContent = 'space-between';
-        controlsContainer.style.alignItems = 'center';
-        controlsContainer.style.marginBottom = '20px';
-        controlsContainer.style.padding = '10px';
-        controlsContainer.style.backgroundColor = '#f8f9fa';
-        controlsContainer.style.borderRadius = '5px';
-        controlsContainer.style.border = '1px solid #dee2e6';
+        controlsContainer.className = 'rating-controls';
         
         // Create date range dropdown options (exclude currently displayed period)
         const dropdownOptions = appState.existingReviewPeriods
@@ -34,7 +27,7 @@ class RatingManager {
             }));
         
         const placeholder = dropdownOptions.length > 0 ? 
-            'Select a rating period' : 
+            'Select a rating period ▼' : 
             'No other rating periods available';
         
         // Create dropdown (left side)
@@ -95,9 +88,9 @@ class RatingManager {
         // Determine the button text - always show the current period if available
         let buttonText;
         if (appState.currentDisplayedPeriod) {
-            buttonText = `${appState.currentDisplayedPeriod.startDate} - ${appState.currentDisplayedPeriod.endDate}`;
+            buttonText = `${appState.currentDisplayedPeriod.startDate} - ${appState.currentDisplayedPeriod.endDate} ▼`;
         } else {
-            buttonText = dropdownOptions.length > 0 ? 'Select a rating period' : 'No rating periods available';
+            buttonText = dropdownOptions.length > 0 ? 'Select a rating period ▼' : 'No rating periods available';
         }
 
         // Create new dropdown
@@ -207,49 +200,28 @@ class RatingManager {
         // Create rating display container
         const ratingDisplay = document.createElement('div');
         ratingDisplay.id = 'existingRatingDisplay';
-        ratingDisplay.style.marginTop = '20px';
-        ratingDisplay.style.padding = '20px';
-        ratingDisplay.style.border = '1px solid #ddd';
-        ratingDisplay.style.borderRadius = '5px';
-        ratingDisplay.style.backgroundColor = '#f8f9fa';
         
         // Create header
-        const header = document.createElement('h4');
-        header.textContent = 'Rating Details';
-        header.style.marginBottom = '15px';
-        header.style.color = '#495057';
-        ratingDisplay.appendChild(header);
+        // const header = document.createElement('h4');
+        // header.textContent = 'Rating Details';
+        // ratingDisplay.appendChild(header);
         
-        // Create rater info
-        const raterInfo = document.createElement('p');
-        raterInfo.innerHTML = `<strong>Rated by:</strong> ${rating.raterName} (${rating.raterType})<br>`;
-        raterInfo.innerHTML += `<strong>Date:</strong> ${DateUtils.formatDateCompact(new Date(rating.timestamp))}`;
-        raterInfo.style.marginBottom = '15px';
-        ratingDisplay.appendChild(raterInfo);
+        // Create modern rating display
+        const raterInfo = {
+            name: rating.raterName,
+            type: rating.raterType,
+            date: DateUtils.formatDateCompact(new Date(rating.timestamp))
+        };
         
-        // Create ratings table
-        const table = UIUtils.createRatingTable(rating);
-        ratingDisplay.appendChild(table);
+        const modernDisplay = UIUtils.createModernRatingDisplay(rating, raterInfo);
+        ratingDisplay.appendChild(modernDisplay);
         
         // Add comments if any
         if (rating.comments) {
-            const commentsSection = document.createElement('div');
-            commentsSection.style.marginTop = '15px';
-            
-            const commentsHeader = document.createElement('strong');
-            commentsHeader.textContent = 'Comments:';
-            commentsSection.appendChild(commentsHeader);
-            
-            const commentsText = document.createElement('p');
-            commentsText.textContent = rating.comments;
-            commentsText.style.marginTop = '5px';
-            commentsText.style.padding = '10px';
-            commentsText.style.backgroundColor = 'white';
-            commentsText.style.border = '1px solid #ddd';
-            commentsText.style.borderRadius = '3px';
-            commentsSection.appendChild(commentsText);
-            
-            ratingDisplay.appendChild(commentsSection);
+            const commentsSection = UIUtils.createModernCommentsSection(rating.comments);
+            if (commentsSection) {
+                ratingDisplay.appendChild(commentsSection);
+            }
         }
         
         // Insert rating display after review period display
@@ -355,3 +327,9 @@ class RatingManager {
         }
     }
 }
+
+// Export the RatingManager class
+export { RatingManager };
+
+// For backward compatibility (can be removed later)
+window.RatingManager = RatingManager;

@@ -3,7 +3,7 @@ class ScreenManager {
     // Show login screen
     static showLogin() {
         domElements.hideAllContainers();
-        domElements.loginContainer.style.display = 'block';
+        domElements.loginContainer.style.display = 'flex';
         
         // Reset form fields
         UIUtils.resetForm(domElements.loginForm);
@@ -16,10 +16,13 @@ class ScreenManager {
     // Show TA selection screen
     static showTASelection() {
         domElements.hideAllContainers();
-        domElements.taSelectionContainer.style.display = 'block';
+        domElements.taSelectionContainer.style.display = 'flex';
         
         // Clear any validation errors from rating form
         RatingManager.clearValidationErrors();
+        
+        // Clean up any existing dropdown listeners to prevent duplicates
+        TAManager.cleanupDropdownListeners();
         
         // Reset body style
         UIUtils.setCenteredBodyStyle();
@@ -29,13 +32,16 @@ class ScreenManager {
             APIService.fetchTAList().then(() => {
                 TAManager.populateTADropdown();
             });
+        } else {
+            // Reinitialize dropdown if TAs are already loaded
+            TAManager.initializeCustomDropdown();
         }
     }
 
     // Show rating screen with date range
     static showRatingScreenWithDateRange() {
         domElements.hideAllContainers();
-        domElements.ratingContainer.style.display = 'block';
+        domElements.ratingContainer.style.display = 'flex';
         
         // Clear any previous validation errors
         RatingManager.clearValidationErrors();
@@ -53,6 +59,12 @@ class ScreenManager {
         const existingRatingDisplay = document.getElementById('existingRatingDisplay');
         if (existingRatingDisplay) {
             existingRatingDisplay.remove();
+        }
+        
+        // Update page title for new rating
+        const pageTitle = document.querySelector('.page-title');
+        if (pageTitle) {
+            pageTitle.innerHTML = '<i class="fas fa-plus-circle"></i>Add New Rating';
         }
         
         // Update displays
@@ -74,7 +86,7 @@ class ScreenManager {
     // Show rating screen with previous data display
     static async showRatingScreenWithPreviousData() {
         domElements.hideAllContainers();
-        domElements.ratingContainer.style.display = 'block';
+        domElements.ratingContainer.style.display = 'flex';
         
         // Clear any previous validation errors
         RatingManager.clearValidationErrors();
@@ -90,6 +102,12 @@ class ScreenManager {
         
         // Reset officer sections
         OfficerRatingManager.resetSections();
+        
+        // Update page title for viewing past ratings
+        const pageTitle = document.querySelector('.page-title');
+        if (pageTitle) {
+            pageTitle.innerHTML = '<i class="fas fa-star"></i>Past TA Ratings';
+        }
         
         // Update displays
         domElements.selectedTANameDisplay.textContent = appState.selectedTAName;
@@ -203,3 +221,9 @@ class ScreenManager {
         if (proceedBtn) proceedBtn.disabled = true;
     }
 }
+
+// Export the ScreenManager class
+export { ScreenManager };
+
+// For backward compatibility (can be removed later)
+window.ScreenManager = ScreenManager;

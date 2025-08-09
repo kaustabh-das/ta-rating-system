@@ -129,3 +129,9 @@ class EventHandlers {
         DateUtils.setupDateInputHandlers();
     }
 }
+
+// Export the EventHandlers class
+export { EventHandlers };
+
+// For backward compatibility (can be removed later)
+window.EventHandlers = EventHandlers;

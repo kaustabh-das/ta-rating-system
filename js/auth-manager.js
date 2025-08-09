@@ -71,6 +71,8 @@ class AuthManager {
 
     // Check for existing session
     static async checkExistingSession() {
+        UIUtils.showLoading('Checking session...');
+        
         const isLoggedIn = appState.loadFromSession();
         
         if (isLoggedIn) {
@@ -93,10 +95,18 @@ class AuthManager {
                 });
             }
             
+            UIUtils.hideLoading();
             ScreenManager.showTASelection();
         } else {
             // If not logged in, show login screen
+            UIUtils.hideLoading();
             ScreenManager.showLogin();
         }
     }
 }
+
+// Export the AuthManager class
+export { AuthManager };
+
+// For backward compatibility (can be removed later)
+window.AuthManager = AuthManager;

@@ -60,3 +60,9 @@ class ReviewManager {
         alert('Review details viewing will be implemented in the next update.');
     }
 }
+
+// Export the ReviewManager class
+export { ReviewManager };
+
+// For backward compatibility (can be removed later)
+window.ReviewManager = ReviewManager;

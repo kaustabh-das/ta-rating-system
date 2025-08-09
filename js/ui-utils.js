@@ -158,51 +158,26 @@ class UIUtils {
     static createDropdown(options, onSelect, placeholder = 'Select...') {
         const dropdownContainer = document.createElement('div');
         dropdownContainer.className = 'dropdown-container';
-        dropdownContainer.style.position = 'relative';
         
         const dropdownButton = document.createElement('button');
         dropdownButton.type = 'button';
-        dropdownButton.className = 'secondary-btn compact-btn';
-        dropdownButton.textContent = placeholder + ' ▼';
+        dropdownButton.className = 'dropdown-btn';
+        dropdownButton.textContent = placeholder; // Remove automatic ▼ addition
         
         const dropdownMenu = document.createElement('div');
         dropdownMenu.className = 'dropdown-menu';
-        dropdownMenu.style.position = 'absolute';
-        dropdownMenu.style.top = '100%';
-        dropdownMenu.style.left = '0';
-        dropdownMenu.style.backgroundColor = 'white';
-        dropdownMenu.style.border = '1px solid #ccc';
-        dropdownMenu.style.borderRadius = '6px';
-        dropdownMenu.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-        dropdownMenu.style.zIndex = '1050';
-        dropdownMenu.style.minWidth = '200px';
-        dropdownMenu.style.maxHeight = '300px';
-        dropdownMenu.style.overflowY = 'auto';
         dropdownMenu.style.display = 'none';
         
         // Populate dropdown menu
         options.forEach((option, index) => {
             const menuItem = document.createElement('div');
-            menuItem.style.padding = '8px 12px';
-            menuItem.style.cursor = 'pointer';
-            menuItem.style.fontSize = '13px';
-            menuItem.style.color = '#495057';
-            menuItem.style.borderBottom = index < options.length - 1 ? '1px solid #f8f9fa' : 'none';
-            menuItem.style.transition = 'background-color 0.2s ease';
+            menuItem.className = 'dropdown-item';
             menuItem.textContent = option.text;
             
-            menuItem.addEventListener('mouseenter', function() {
-                this.style.backgroundColor = '#f8f9fa';
-                this.style.color = '#007bff';
-            });
-            
-            menuItem.addEventListener('mouseleave', function() {
-                this.style.backgroundColor = 'white';
-                this.style.color = '#495057';
-            });
-            
             menuItem.addEventListener('click', function() {
-                dropdownButton.textContent = option.text + ' ▼';
+                // Check if the placeholder already had an arrow and preserve it
+                const hasArrow = placeholder.includes('▼');
+                dropdownButton.textContent = hasArrow ? option.text + ' ▼' : option.text;
                 dropdownMenu.style.display = 'none';
                 onSelect(option);
             });
@@ -227,4 +202,129 @@ class UIUtils {
         
         return { container: dropdownContainer, button: dropdownButton, menu: dropdownMenu };
     }
+
+    // Create modern card-based rating display
+    static createModernRatingDisplay(ratings, raterInfo, categories = RATING_CATEGORIES) {
+        const container = document.createElement('div');
+        container.className = 'rating-details-modern';
+        
+        // Create two-column layout container
+        const twoColumnContainer = document.createElement('div');
+        twoColumnContainer.className = 'rating-details-two-column';
+        
+        // Left container - Rating info header
+        const leftContainer = document.createElement('div');
+        leftContainer.className = 'rating-info-container';
+        
+        const infoHeader = document.createElement('div');
+        infoHeader.className = 'rating-info-header';
+        
+        const raterRow = document.createElement('div');
+        raterRow.className = 'info-row';
+        const raterLabel = document.createElement('span');
+        raterLabel.className = 'info-label';
+        raterLabel.textContent = 'RATED BY:';
+        const raterValue = document.createElement('span');
+        raterValue.className = 'info-value';
+        raterValue.textContent = `${raterInfo.name}`;
+        const raterType = document.createElement('span');
+        raterType.className = 'info-subvalue';
+        raterType.textContent = `(${raterInfo.type})`;
+        raterRow.appendChild(raterLabel);
+        raterRow.appendChild(raterValue);
+        raterRow.appendChild(raterType);
+        
+        const dateRow = document.createElement('div');
+        dateRow.className = 'info-row';
+        const dateLabel = document.createElement('span');
+        dateLabel.className = 'info-label';
+        dateLabel.textContent = 'DATE:';
+        const dateValue = document.createElement('span');
+        dateValue.className = 'info-value';
+        dateValue.textContent = raterInfo.date;
+        dateRow.appendChild(dateLabel);
+        dateRow.appendChild(dateValue);
+        
+        infoHeader.appendChild(raterRow);
+        infoHeader.appendChild(dateRow);
+        leftContainer.appendChild(infoHeader);
+        
+        // Right container - Rating categories (individual cards)
+        const rightContainer = document.createElement('div');
+        rightContainer.className = 'rating-categories-container';
+        
+        categories.forEach(category => {
+            // Create individual card for each category
+            const categoryCard = document.createElement('div');
+            categoryCard.className = 'rating-category-card';
+            
+            const categoryName = document.createElement('div');
+            categoryName.className = 'category-name';
+            categoryName.setAttribute('data-category', category.key);
+            categoryName.textContent = category.label;
+            
+            const categoryRating = document.createElement('div');
+            categoryRating.className = 'category-rating';
+            
+            const ratingValue = ratings[category.key] || 0;
+            
+            // Create stars
+            const starsContainer = document.createElement('div');
+            starsContainer.className = 'rating-stars';
+            
+            for (let i = 1; i <= 5; i++) {
+                const star = document.createElement('i');
+                star.className = i <= ratingValue ? 'fas fa-star rating-star' : 'fas fa-star rating-star empty';
+                starsContainer.appendChild(star);
+            }
+            
+            // Rating value
+            const valueSpan = document.createElement('span');
+            valueSpan.className = 'rating-value';
+            valueSpan.textContent = `(${ratingValue}/5)`;
+            
+            categoryRating.appendChild(starsContainer);
+            categoryRating.appendChild(valueSpan);
+            
+            categoryCard.appendChild(categoryName);
+            categoryCard.appendChild(categoryRating);
+            rightContainer.appendChild(categoryCard);
+        });
+        
+        // Assemble the two-column layout
+        twoColumnContainer.appendChild(leftContainer);
+        twoColumnContainer.appendChild(rightContainer);
+        container.appendChild(twoColumnContainer);
+        
+        return container;
+    }
+
+    // Create modern comments section
+    static createModernCommentsSection(comments) {
+        if (!comments || comments.trim() === '') {
+            return null;
+        }
+        
+        const commentsSection = document.createElement('div');
+        commentsSection.className = 'rating-comments-section';
+        
+        const commentsHeader = document.createElement('div');
+        commentsHeader.className = 'comments-header';
+        commentsHeader.innerHTML = '<i class="fas fa-comment-alt"></i> Additional Comments';
+        
+        const commentsText = document.createElement('div');
+        commentsText.className = 'comments-text';
+        commentsText.textContent = comments;
+        
+        commentsSection.appendChild(commentsHeader);
+        commentsSection.appendChild(commentsText);
+        
+        return commentsSection;
+    }
 }
+
+// Export the UIUtils class
+export { UIUtils };
+
+// For backward compatibility (can be removed later)
+window.UIUtils = UIUtils;

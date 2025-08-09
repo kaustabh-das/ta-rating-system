@@ -1,0 +1,621 @@
+/* ==========================================
+   Responsive Design & Utilities
+   ========================================== */
+
+/* ==========================================
+   Responsive Design
+   ========================================== */
+
+@media (max-width: 1024px) {
+    .login-wrapper {
+        max-width: 320px;
+        padding: var(--space-3);
+    }
+    
+    .login-card {
+        padding: var(--space-5);
+        max-width: 300px;
+    }
+    
+    .dashboard-container {
+        max-width: 420px;
+        padding: var(--space-3);
+    }
+    
+    .rating-container {
+        max-width: 500px;
+        padding: var(--space-3);
+    }
+    
+    .selection-card {
+        max-width: 400px;
+    }
+    
+    .rating-card {
+        max-width: 480px;
+    }
+    
+    .rating-header {
+        flex-direction: column;
+        gap: var(--space-4);
+        text-align: center;
+    }
+    
+    .rating-form-container {
+        padding: var(--space-6);
+        padding-top: 0;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    /* Rating display responsive improvements */
+    .rating-controls {
+        flex-direction: column;
+        gap: var(--space-3);
+        align-items: stretch;
+    }
+    
+    .dropdown-container {
+        max-width: none;
+        width: 100%;
+    }
+    
+    .dropdown-container button {
+        min-width: auto;
+        width: 100%;
+    }
+    
+    .rating-display > div {
+        padding: var(--space-4);
+        /* Stack internal columns on mobile */
+        grid-template-columns: 1fr !important;
+        gap: var(--space-4) !important;
+    }
+    
+    /* Mobile: metadata section full width */
+    .rating-display > div > div:first-child {
+        grid-column: 1 !important;
+    }
+    
+    /* Mobile: table full width */
+    .rating-display table {
+        grid-column: 1 !important;
+    }
+    
+    .rating-display table th,
+    .rating-display table td {
+        padding: var(--space-2) var(--space-3) !important;
+        font-size: var(--font-size-xs) !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .login-screen {
+        background-attachment: scroll;
+        padding: 0;
+        width: 100%;
+        height: 100vh;
+    }
+    
+    .dashboard-screen {
+        background-attachment: scroll;
+        padding: 0;
+        width: 100%;
+        height: 100vh;
+    }
+    
+    .rating-screen {
+        background-attachment: scroll;
+        padding: 0;
+        width: 100%;
+        height: 100vh;
+    }
+    
+    .success-screen {
+        background-attachment: scroll;
+        padding: 0;
+        width: 100%;
+        height: 100vh;
+    }
+    
+    .login-wrapper {
+        max-width: 300px;
+        padding: var(--space-2);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .dashboard-container {
+        max-width: 350px;
+        padding: var(--space-2);
+    }
+    
+    .rating-container {
+        max-width: 350px;
+        padding: var(--space-2);
+    }
+    
+    .login-card {
+        padding: var(--space-4);
+        border-radius: var(--radius-xl);
+        max-width: 280px;
+        width: 100%;
+    }
+    
+    .selection-card {
+        max-width: 330px;
+        width: 100%;
+    }
+    
+    .rating-card {
+        max-width: 330px;
+        width: 100%;
+        border-radius: var(--radius-xl);
+    }
+    
+    .rating-form-container {
+        padding: var(--space-4);
+    }
+    
+    .success-content {
+        padding: var(--space-8);
+        border-radius: var(--radius-xl);
+    }
+    
+    .card-content {
+        padding: var(--space-6);
+    }
+    
+    .page-title {
+        font-size: var(--font-size-xl);
+    }
+    
+    .page-subtitle {
+        font-size: var(--font-size-sm);
+    }
+    
+    .card-header h2 {
+        font-size: var(--font-size-base);
+    }
+    
+    .card-header::before {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+        margin-bottom: var(--space-3);
+    }
+    
+    .card-header p {
+        font-size: var(--font-size-xs);
+        max-width: 240px;
+    }
+    
+    .login-form .form-input {
+        padding: var(--space-2) var(--space-3);
+        font-size: var(--font-size-xs);
+    }
+    
+    .login-form .btn {
+        padding: var(--space-2) var(--space-3);
+        font-size: var(--font-size-xs);
+    }
+    
+    .selection-form .form-select {
+        padding: var(--space-2) var(--space-3);
+        font-size: var(--font-size-xs);
+    }
+    
+    .action-buttons .btn {
+        padding: var(--space-2) var(--space-3);
+        font-size: var(--font-size-xs);
+    }
+    
+    .header-container {
+        padding: 0 var(--space-4);
+    }
+    
+    .logo-text {
+        display: none;
+    }
+    
+    /* Rating display improvements for tablets */
+    .rating-section {
+        margin: var(--space-4) 0;
+        padding: var(--space-3);
+    }
+    
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-3);
+    }
+    
+    .rating-controls {
+        width: 100%;
+        justify-content: space-evenly;
+    }
+    
+    #existingRatingDisplay {
+        padding: var(--space-4) !important;
+    }
+    
+    /* Modern rating details responsive */
+    .rating-details-two-column {
+        grid-template-columns: 1fr;
+        gap: var(--space-4);
+    }
+    
+    .rating-info-header {
+        padding: var(--space-4);
+    }
+    
+    .rating-categories-container {
+        gap: var(--space-2);
+    }
+    
+    .rating-category-card {
+        padding: var(--space-3);
+    }
+    
+    .rating-category-card {
+        padding: var(--space-3);
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-2);
+    }
+    
+    .category-rating {
+        align-self: flex-end;
+    }
+    
+    .rating-info-header {
+        padding: var(--space-3);
+    }
+    
+    .rating-comments-section {
+        padding: var(--space-4);
+    }
+    
+    /* Rating table responsive adjustments */
+    .rating-display table {
+        border-spacing: var(--space-1) !important;
+    }
+    
+    .rating-display table th,
+    .rating-display table td {
+        padding: var(--space-2) var(--space-3) !important;
+        font-size: var(--font-size-xs) !important;
+    }
+    
+    .rating-display > div > div[style*="margin-bottom: 15px"] {
+        padding: var(--space-3) !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-wrapper {
+        max-width: 280px;
+        padding: var(--space-1);
+    }
+    
+    .dashboard-container {
+        max-width: 300px;
+        padding: var(--space-1);
+    }
+    
+    .rating-container {
+        max-width: 300px;
+        padding: var(--space-1);
+    }
+    
+    .login-card {
+        padding: var(--space-3);
+        max-width: 260px;
+    }
+    
+    .selection-card {
+        max-width: 280px;
+    }
+    
+    .rating-card {
+        max-width: 280px;
+    }
+    
+    .card-content {
+        padding: var(--space-4);
+    }
+    
+    .rating-form-container {
+        padding: var(--space-3);
+    }
+    
+    .page-title {
+        font-size: var(--font-size-lg);
+        gap: var(--space-2);
+    }
+    
+    .dashboard-header {
+        margin-bottom: var(--space-4);
+    }
+    
+    .rating-header {
+        margin-bottom: var(--space-4);
+    }
+    
+    .card-header {
+        margin-bottom: var(--space-4);
+    }
+    
+    .card-header p {
+        font-size: var(--font-size-xs);
+        max-width: 220px;
+    }
+    
+    .login-form {
+        gap: var(--space-3);
+    }
+    
+    .login-form .form-group {
+        margin-bottom: var(--space-3);
+    }
+    
+    .selection-form .form-group {
+        margin-bottom: var(--space-4);
+    }
+    
+    .action-buttons {
+        margin-top: var(--space-4);
+    }
+    
+    /* Mobile rating display improvements */
+    .rating-section {
+        margin: var(--space-3) 0;
+        padding: var(--space-2);
+    }
+    
+    .section-header {
+        flex-direction: column;
+        gap: var(--space-2);
+        text-align: center;
+    }
+    
+    .section-title {
+        justify-content: center;
+    }
+    
+    .rating-controls {
+        flex-direction: column;
+        padding: var(--space-3);
+    }
+    
+    .compact-btn, 
+    #addNewRatingBtn {
+        width: 100% !important;
+        margin-top: var(--space-2) !important;
+    }
+    
+    .rating-display > div {
+        padding: var(--space-3) !important;
+    }
+    
+    #existingRatingDisplay {
+        padding: var(--space-3) !important;
+    }
+    
+    /* Mobile modern rating details */
+    .rating-details-two-column {
+        grid-template-columns: 1fr;
+        gap: var(--space-3);
+    }
+    
+    .rating-info-header {
+        padding: var(--space-4);
+    }
+    
+    .rating-info-header .info-row {
+        margin-bottom: var(--space-3);
+    }
+    
+    .rating-categories-container {
+        gap: var(--space-2);
+    }
+    
+    .rating-category-card {
+        padding: var(--space-3);
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-2);
+        text-align: left;
+    }
+    
+    .category-rating {
+        align-self: flex-start;
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .rating-info-header {
+        padding: var(--space-3);
+    }
+    
+    .rating-comments-section {
+        padding: var(--space-3);
+    }
+    
+    .rating-stars {
+        gap: 2px;
+    }
+    
+    .rating-star {
+        font-size: var(--font-size-sm);
+    }
+}
+
+@media (max-width: 320px) {
+    .user-details {
+        display: none;
+    }
+    
+    .dashboard-container,
+    .rating-container {
+        padding: 0 var(--space-4);
+    }
+    
+    .rating-group {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-4);
+    }
+    
+    .star-rating {
+        align-self: center;
+    }
+    
+    /* Rating display mobile optimizations */
+    .rating-display table {
+        border-spacing: 0 !important;
+    }
+    
+    .rating-display table th,
+    .rating-display table td {
+        padding: var(--space-1) var(--space-2) !important;
+        font-size: var(--font-size-xs) !important;
+    }
+    
+    .rating-display table td span[style*="color: #ffc107"] {
+        font-size: var(--font-size-sm) !important;
+        letter-spacing: 0 !important;
+    }
+    
+    .rating-display > div > div[style*="margin-bottom: 15px"] {
+        padding: var(--space-2) !important;
+        margin-bottom: var(--space-2) !important;
+    }
+    
+    .screen {
+        padding: var(--space-4) 0;
+    }
+}
+
+/* ==========================================
+   Dark Mode Support (Optional)
+   ========================================== */
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --secondary-50: #0f172a;
+        --secondary-100: #1e293b;
+        --secondary-200: #334155;
+        --secondary-300: #475569;
+        --secondary-400: #64748b;
+        --secondary-500: #94a3b8;
+        --secondary-600: #cbd5e1;
+        --secondary-700: #e2e8f0;
+        --secondary-800: #f1f5f9;
+        --secondary-900: #f8fafc;
+    }
+}
+
+/* ==========================================
+   Animation & Interaction Enhancements
+   ========================================== */
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes shimmer {
+    0% { background-position: -200px 0; }
+    100% { background-position: calc(200px + 100%) 0; }
+}
+
+.rating-group {
+    animation: fadeInUp 0.3s ease-out;
+}
+
+.rating-group:nth-child(2) { animation-delay: 0.1s; }
+.rating-group:nth-child(3) { animation-delay: 0.2s; }
+.rating-group:nth-child(4) { animation-delay: 0.3s; }
+.rating-group:nth-child(5) { animation-delay: 0.4s; }
+
+.section-header {
+    animation: slideInRight 0.3s ease-out;
+}
+
+.login-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+        0 30px 60px rgba(0, 0, 0, 0.12),
+        0 0 0 1px rgba(255, 255, 255, 0.6);
+}
+
+.hero-content > * {
+    animation: fadeInUp 0.6s ease-out;
+    animation-fill-mode: both;
+}
+
+.hero-icon { animation-delay: 0.1s; }
+.hero-title { animation-delay: 0.2s; }
+.hero-subtitle { animation-delay: 0.3s; }
+.hero-features { animation-delay: 0.4s; }
+
+/* ==========================================
+   Utility Classes
+   ========================================== */
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+.mb-0 { margin-bottom: 0; }
+.mb-4 { margin-bottom: var(--space-4); }
+.mb-8 { margin-bottom: var(--space-8); }
+
+.p-4 { padding: var(--space-4); }
+.p-6 { padding: var(--space-6); }
+.p-8 { padding: var(--space-8); }
