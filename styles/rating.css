@@ -60,6 +60,14 @@
     z-index: 1000;
 }
 
+/* Logout button positioning - top right */
+.header-actions .logout-btn {
+    position: fixed;
+    top: var(--space-6);
+    right: var(--space-6);
+    left: auto;
+}
+
 .header-content {
     flex: 1;
     text-align: center;

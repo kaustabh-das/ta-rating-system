@@ -48,6 +48,7 @@ class DOMElements {
         this.logoutButton = document.getElementById('logoutButton');
         this.logoutButton2 = document.getElementById('logoutButton2');
         this.logoutButton3 = document.getElementById('logoutButton3');
+        this.globalLogoutBtn = document.getElementById('globalLogoutBtn');
         this.backToSelectionBtn = document.getElementById('backToSelectionBtn');
         this.rateAnotherBtn = document.getElementById('rateAnotherBtn');
 

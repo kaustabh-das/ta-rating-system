@@ -78,7 +78,7 @@ class EventHandlers {
     // Setup navigation handlers
     static setupNavigationHandlers() {
         // Logout buttons
-        [domElements.logoutButton, domElements.logoutButton2, domElements.logoutButton3].forEach(button => {
+        [domElements.logoutButton, domElements.logoutButton2, domElements.logoutButton3, domElements.globalLogoutBtn].forEach(button => {
             if (button) {
                 button.addEventListener('click', AuthManager.logout);
             }

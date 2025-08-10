@@ -163,7 +163,7 @@ class OfficerRatingManager {
         const addButton = document.createElement('button');
         addButton.type = 'button';
         addButton.className = 'compact-btn';
-        addButton.textContent = '+ Add New Rating';
+        addButton.textContent = '+ Rating';
         addButton.style.whiteSpace = 'nowrap';
         
         addButton.addEventListener('click', () => {
@@ -293,22 +293,22 @@ class OfficerRatingManager {
         
         // Add period information to the rating info header
         const infoHeader = modernDisplay.querySelector('.rating-info-header');
-        if (infoHeader && rating.startDate && rating.endDate) {
-            const periodRow = document.createElement('div');
-            periodRow.className = 'info-row';
+        // if (infoHeader && rating.startDate && rating.endDate) {
+        //     const periodRow = document.createElement('div');
+        //     periodRow.className = 'info-row';
             
-            const periodLabel = document.createElement('span');
-            periodLabel.className = 'info-label';
-            periodLabel.textContent = 'PERIOD:';
+        //     const periodLabel = document.createElement('span');
+        //     periodLabel.className = 'info-label';
+        //     periodLabel.textContent = 'PERIOD:';
             
-            const periodValue = document.createElement('span');
-            periodValue.className = 'info-value';
-            periodValue.textContent = `${rating.startDate} - ${rating.endDate}`;
+        //     const periodValue = document.createElement('span');
+        //     periodValue.className = 'info-value';
+        //     periodValue.textContent = `${rating.startDate} - ${rating.endDate}`;
             
-            periodRow.appendChild(periodLabel);
-            periodRow.appendChild(periodValue);
-            infoHeader.appendChild(periodRow);
-        }
+        //     periodRow.appendChild(periodLabel);
+        //     periodRow.appendChild(periodValue);
+        //     infoHeader.appendChild(periodRow);
+        // }
         
         // Add comments section if they exist
         if (rating.comments) {

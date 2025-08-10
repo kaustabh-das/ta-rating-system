@@ -48,6 +48,16 @@
 .dashboard-header {
     text-align: center;
     margin-bottom: var(--space-6);
+    position: relative;
+    width: 100%;
+}
+
+/* Logout button positioning for dashboard - top right */
+.dashboard-header .header-actions {
+    position: fixed;
+    top: var(--space-6);
+    right: var(--space-6);
+    z-index: 1000;
 }
 
 .page-title {

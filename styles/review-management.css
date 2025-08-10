@@ -45,6 +45,59 @@
     overflow: visible;
 }
 
+.management-header {
+    text-align: center;
+    margin-bottom: var(--space-3);
+    margin-top: 0;
+    width: 100%;
+    padding-top: 0;
+    position: relative;
+}
+
+/* Header actions for management screen */
+.management-header .header-actions {
+    position: fixed;
+    top: var(--space-6);
+    left: var(--space-6);
+    right: var(--space-6);
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Back button stays on left */
+.management-header .header-actions .btn-secondary {
+    position: relative;
+}
+
+/* Logout button goes to right */
+.management-header .header-actions .logout-btn {
+    position: relative;
+}
+
+.header-content {
+    margin-top: 0;
+    width: 100%;
+    padding-top: 0;
+}
+
+.management-header .header-actions {
+    position: fixed;
+    top: var(--space-6);
+    left: var(--space-6);
+    right: var(--space-6);
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    pointer-events: none;
+}
+
+.management-header .header-actions .btn {
+    pointer-events: auto;
+}
+
 /* Rating Display Section Styling - Modern Design Integration */
 .rating-display {
     display: flex;

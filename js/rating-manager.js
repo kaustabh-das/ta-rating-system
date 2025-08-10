@@ -46,7 +46,7 @@ class RatingManager {
         addNewButton.id = 'addNewRatingBtn';
         addNewButton.type = 'button';
         addNewButton.className = 'compact-btn';
-        addNewButton.textContent = '+ Add New Rating';
+        addNewButton.textContent = '+ Rating';
         
         addNewButton.addEventListener('click', function() {
             ScreenManager.showDateRangeModal();
