@@ -30,6 +30,9 @@ class AuthManager {
                 const userInfo = `${appState.currentUserName} (${appState.currentUserType})`;
                 domElements.updateUserDisplays(userInfo);
                 
+                // Update user dropdown info
+                EventHandlers.updateUserInfo(appState.currentUserName, appState.currentUserType);
+                
                 // Clear any existing rating displays from previous user
                 const existingRatingDisplay = document.getElementById('existingRatingDisplay');
                 if (existingRatingDisplay) {
@@ -71,6 +74,8 @@ class AuthManager {
 
     // Check for existing session
     static async checkExistingSession() {
+        UIUtils.showLoading('Checking session...');
+        
         const isLoggedIn = appState.loadFromSession();
         
         if (isLoggedIn) {
@@ -84,6 +89,9 @@ class AuthManager {
                 // Make sure to update UI with stored data
                 const userInfo = `${appState.currentUserName} (${appState.currentUserType})`;
                 domElements.updateUserDisplays(userInfo);
+                
+                // Update user dropdown info for existing session
+                EventHandlers.updateUserInfo(appState.currentUserName, appState.currentUserType);
             }
             
             // Fetch TA list in background if not already loaded
@@ -93,10 +101,18 @@ class AuthManager {
                 });
             }
             
+            UIUtils.hideLoading();
             ScreenManager.showTASelection();
         } else {
             // If not logged in, show login screen
+            UIUtils.hideLoading();
             ScreenManager.showLogin();
         }
     }
 }
+
+// Export the AuthManager class
+export { AuthManager };
+
+// For backward compatibility (can be removed later)
+window.AuthManager = AuthManager;

@@ -3,258 +3,555 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TA Rating System</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="header-styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <title>TA Rating System - Modern Dashboard</title>
+    <link rel="stylesheet" href="styles/index.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
+<body class="modern-theme">
+    <!-- Global Navigation Header -->
+    <header class="main-header" id="mainHeader" style="display: none;">
+        <div class="header-container">
+            <div class="logo-section">
+                <i class="fas fa-star-half-alt logo-icon"></i>
+                <h1 class="logo-text">TA Rating System</h1>
+            </div>
+            <nav class="main-nav">
+                <div class="nav-breadcrumb" id="navBreadcrumb">
+                    <span class="breadcrumb-item active">Dashboard</span>
+                </div>
+            </nav>
+            <div class="user-section">
+                <div class="user-info">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-details">
+                        <span class="user-name" id="globalUserName">John Doe</span>
+                        <span class="user-role" id="globalUserRole">Mentor</span>
+                    </div>
+                </div>
+                <button class="logout-btn" id="globalLogoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
     <!-- Loading Overlay -->
     <div id="loadingOverlay" class="loading-overlay">
-        <div class="spinner-container">
-            <div class="spinner"></div>
-            <p>Loading data...</p>
+        <div class="loading-content">
+            <div class="loading-spinner">
+                <div class="spinner-ring"></div>
+                <div class="spinner-ring"></div>
+                <div class="spinner-ring"></div>
+            </div>
+            <p class="loading-text">Loading data...</p>
         </div>
     </div>
-    
-    <!-- Login Screen -->
-    <div class="login-container" id="loginContainer">
-        <h1>TA Rating System</h1>
-        <div class="content">
-            <form id="loginForm">
-                <div class="form-group">
-                    <label for="phoneNumber">Phone Number</label>
-                    <input 
-                        type="tel" 
-                        id="phoneNumber" 
-                        placeholder="Enter your phone number"
-                        required
-                    >
-                    <div id="phoneError" class="error-message">Please enter a valid phone number</div>
+
+    <!-- Main Application Container -->
+    <main class="app-main" id="appMain">
+        
+        <!-- Login Screen -->
+        <section class="screen login-screen" id="loginContainer">
+            <div class="login-wrapper">
+                <div class="login-form-section">
+                    <div class="login-card">
+                        <div class="card-header">
+                            <h2>Sign in with phone</h2>
+                            <p>Access your TA rating dashboard with your credentials</p>
+                        </div>
+                        <form id="loginForm" class="login-form">
+                            <div class="form-group">
+                                <input 
+                                    type="tel" 
+                                    id="phoneNumber" 
+                                    placeholder="Phone Number"
+                                    required
+                                    class="form-input"
+                                >
+                                <div id="phoneError" class="error-message">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    Please enter a valid phone number
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <input 
+                                    type="password" 
+                                    id="password" 
+                                    placeholder="Password"
+                                    required
+                                    class="form-input"
+                                >
+                                <div id="passwordError" class="error-message">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    Password is required
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary btn-full">
+                                <span>Get Started</span>
+                            </button>
+                            
+                            <div id="loginError" class="error-message error-global">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Invalid phone number or password
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TA Selection Screen -->
+        <section class="screen dashboard-screen" id="taSelectionContainer" style="display: none;">
+            <div class="dashboard-container">
+                <div class="dashboard-header">
+                    <div class="header-actions">
+                        <div class="user-dropdown">
+                            <button class="user-dropdown-trigger" id="userDropdownTrigger1">
+                                <div class="user-info">
+                                    <div class="user-avatar">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div class="user-details">
+                                        <span class="user-name" id="userName1">Loading...</span>
+                                        <span class="user-role" id="userRole1">Loading...</span>
+                                    </div>
+                                </div>
+                                <i class="fas fa-chevron-down dropdown-arrow"></i>
+                            </button>
+                            <div class="user-dropdown-menu" id="userDropdownMenu1">
+                                <button id="logoutButton" class="dropdown-item logout-item">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    <span>Logout</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="header-content">
+                        <h1 class="page-title">
+                            <i class="fas fa-users"></i>
+                            Select Technical Assistant
+                        </h1>
+                        <p class="page-subtitle">Choose a TA to evaluate or view existing ratings</p>
+                    </div>
                 </div>
                 
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input 
-                        type="password" 
-                        id="password" 
-                        placeholder="Enter your password"
-                        required
-                    >
-                    <div id="passwordError" class="error-message">Password is required</div>
+                <div class="dashboard-content">
+                    <div class="selection-card">
+                        <div class="card-content">
+                            <div class="selection-form">
+                                <div class="form-group">
+                                    <label for="taSelect" class="form-label">
+                                        <i class="fas fa-user-graduate"></i>
+                                        Technical Assistant
+                                    </label>
+                                    <div class="custom-select-wrapper">
+                                        <div class="custom-select" id="customTASelect">
+                                            <div class="select-trigger">
+                                                <span class="select-text">Choose a TA</span>
+                                                <i class="fas fa-chevron-down select-arrow"></i>
+                                            </div>
+                                            <div class="select-options">
+                                                <!-- Options will be populated by JavaScript -->
+                                            </div>
+                                        </div>
+                                        <!-- Hidden select for form submission -->
+                                        <select id="taSelect" required class="hidden-select">
+                                            <option value="">Choose a TA</option>
+                                            <!-- Options will be populated by JavaScript -->
+                                        </select>
+                                    </div>
+                                    <div id="taSelectError" class="error-message">
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        Please select a TA to continue
+                                    </div>
+                                </div>
+                                
+                                <div class="action-buttons">
+                                    <button id="proceedToRatingBtn" class="btn btn-primary btn-large">
+                                        <span>Proceed to Rating</span>
+                                        <i class="fas fa-arrow-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Rating Screen -->
+        <section class="screen rating-screen" id="ratingContainer" style="display: none;">
+            <div class="rating-container">
+                <div class="rating-header">
+                    <div class="header-actions">
+                        <button id="backToSelectionBtn" class="btn back-btn">
+                            <i class="fas fa-arrow-left"></i>
+                            <span>Back</span>
+                        </button>
+                        <div class="user-dropdown">
+                            <button class="user-dropdown-trigger" id="userDropdownTrigger2">
+                                <div class="user-info">
+                                    <div class="user-avatar">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div class="user-details">
+                                        <span class="user-name" id="userName2">Loading...</span>
+                                        <span class="user-role" id="userRole2">Loading...</span>
+                                    </div>
+                                </div>
+                                <i class="fas fa-chevron-down dropdown-arrow"></i>
+                            </button>
+                            <div class="user-dropdown-menu" id="userDropdownMenu2">
+                                <button id="logoutButton2" class="dropdown-item logout-item">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    <span>Logout</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="header-content">
+                        <h1 class="page-title">
+                            <i class="fas fa-star"></i>
+                            Rate TA Performance
+                        </h1>
+                        <h2 class="ta-name" id="selectedTAName">Loading...</h2>
+                    </div>
+                </div>
+
+                <!-- Review Period Display -->
+                <div id="reviewPeriodDisplay" class="period-badge">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Review Period</span>
+                </div>
+
+                <!-- Officer Dashboard Sections -->
+                <div class="officer-dashboard" id="officerDashboard" style="display: none;">
+                    <!-- Officer Ratings Section -->
+                    <div id="officerRatingsSection" class="rating-section officer-section" style="display: none;">
+                        <div class="section-header">
+                            <div class="section-title">
+                                <i class="fas fa-user-shield"></i>
+                                <h3>Officer Ratings</h3>
+                                <!-- <span class="badge badge-primary">Editable</span> -->
+                            </div>
+                            <div class="section-controls">
+                                <div id="officerRatingControls" class="rating-controls"></div>
+                            </div>
+                        </div>
+                        <div id="officerRatingDisplay" class="rating-display"></div>
+                    </div>
+                    
+                    <!-- Mentor Ratings Section -->
+                    <div id="mentorRatingsSection" class="rating-section mentor-section" style="display: none;">
+                        <div class="section-header">
+                            <div class="section-title">
+                                <i class="fas fa-user-tie"></i>
+                                <h3>Mentor Ratings</h3>
+                                <span class="badge badge-info">View Only</span>
+                            </div>
+                            <div class="section-controls">
+                                <div id="mentorRatingControls" class="rating-controls"></div>
+                            </div>
+                        </div>
+                        <div id="mentorRatingDisplay" class="rating-display"></div>
+                    </div>
+
+                </div>
+
+                <!-- Rating Form -->
+                <div class="rating-form-container" id="ratingFormContainer">
+                    <form id="ratingForm" class="rating-form">
+
+                        <!-- Error Message at Top -->
+                        <div id="ratingError" class="error-message error-global">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span class="error-text"></span>
+                        </div>
+
+                        <div class="rating-grid">
+                            <div class="rating-group">
+                                <div class="category-info">
+                                    <i class="fas fa-user-check category-icon"></i>
+                                    <div class="category-text">
+                                        <label>Discipline</label>
+                                        <span class="category-desc">Professional behavior and punctuality</span>
+                                    </div>
+                                </div>
+                                <div class="star-rating">
+                                    <input type="radio" id="discipline5" name="discipline" value="5">
+                                    <label for="discipline5" class="star-label"><i class="fas fa-star"></i></label>
+                                    <input type="radio" id="discipline4" name="discipline" value="4">
+                                    <label for="discipline4" class="star-label"><i class="fas fa-star"></i></label>
+                                    <input type="radio" id="discipline3" name="discipline" value="3">
+                                    <label for="discipline3" class="star-label"><i class="fas fa-star"></i></label>
+                                    <input type="radio" id="discipline2" name="discipline" value="2">
+                                    <label for="discipline2" class="star-label"><i class="fas fa-star"></i></label>
+                                    <input type="radio" id="discipline1" name="discipline" value="1">
+                                    <label for="discipline1" class="star-label"><i class="fas fa-star"></i></label>
+                                </div>
+                            </div>
+
+                            <div class="rating-group">
+                                <div class="category-info">
+                                    <i class="fas fa-heart category-icon"></i>
+                                    <div class="category-text">
+                                        <label>Ethics</label>
+                                        <span class="category-desc">Moral principles and integrity</span>
+                                    </div>
+                                </div>
+                                <div class="star-rating">
+                                    <input type="radio" id="ethics5" name="ethics" value="5">
+                                    <label for="ethics5" class="star-label"><i class="fas fa-star"></i></label>
+                                    <input type="radio" id="ethics4" name="ethics" value="4">
+                                    <label for="ethics4" class="star-label"><i class="fas fa-star"></i></label>
+                                    <input type="radio" id="ethics3" name="ethics" value="3">
+                                    <label for="ethics3" class="star-label"><i class="fas fa-star"></i></label>
+                                    <input type="radio" id="ethics2" name="ethics" value="2">
+                                    <label for="ethics2" class="star-label"><i class="fas fa-star"></i></label>
+                                    <input type="radio" id="ethics1" name="ethics" value="1">
+                                    <label for="ethics1" class="star-label"><i class="fas fa-star"></i></label>
+                                </div>
+                            </div>
+
+                            <div class="rating-group">
+                                <div class="category-info">
+                                    <i class="fas fa-brain category-icon"></i>
+                                    <div class="category-text">
+                                        <label>Knowledge</label>
+                                        <span class="category-desc">Technical expertise and understanding</span>
+                                    </div>
+                                </div>
+                                <div class="star-rating">
+                                    <input type="radio" id="knowledge5" name="knowledge" value="5">
+                                    <label for="knowledge5" class="star-label"><i class="fas fa-star"></i></label>
+                                    <input type="radio" id="knowledge4" name="knowledge" value="4">
+                                    <label for="knowledge4" class="star-label"><i class="fas fa-star"></i></label>
+                                    <input type="radio" id="knowledge3" name="knowledge" value="3">
+                                    <label for="knowledge3" class="star-label"><i class="fas fa-star"></i></label>
+                                    <input type="radio" id="knowledge2" name="knowledge" value="2">
+                                    <label for="knowledge2" class="star-label"><i class="fas fa-star"></i></label>
+                                    <input type="radio" id="knowledge1" name="knowledge" value="1">
+                                    <label for="knowledge1" class="star-label"><i class="fas fa-star"></i></label>
+                                </div>
+                            </div>
+
+                            <div class="rating-group">
+                                <div class="category-info">
+                                    <i class="fas fa-comments category-icon"></i>
+                                    <div class="category-text">
+                                        <label>Communication</label>
+                                        <span class="category-desc">Clarity and interpersonal skills</span>
+                                    </div>
+                                </div>
+                                <div class="star-rating">
+                                    <input type="radio" id="communication5" name="communication" value="5">
+                                    <label for="communication5" class="star-label"><i class="fas fa-star"></i></label>
+                                    <input type="radio" id="communication4" name="communication" value="4">
+                                    <label for="communication4" class="star-label"><i class="fas fa-star"></i></label>
+                                    <input type="radio" id="communication3" name="communication" value="3">
+                                    <label for="communication3" class="star-label"><i class="fas fa-star"></i></label>
+                                    <input type="radio" id="communication2" name="communication" value="2">
+                                    <label for="communication2" class="star-label"><i class="fas fa-star"></i></label>
+                                    <input type="radio" id="communication1" name="communication" value="1">
+                                    <label for="communication1" class="star-label"><i class="fas fa-star"></i></label>
+                                </div>
+                            </div>
+
+                            <div class="rating-group">
+                                <div class="category-info">
+                                    <i class="fas fa-users category-icon"></i>
+                                    <div class="category-text">
+                                        <label>Teamwork</label>
+                                        <span class="category-desc">Collaboration and cooperation</span>
+                                    </div>
+                                </div>
+                                <div class="star-rating">
+                                    <input type="radio" id="teamwork5" name="teamwork" value="5">
+                                    <label for="teamwork5" class="star-label"><i class="fas fa-star"></i></label>
+                                    <input type="radio" id="teamwork4" name="teamwork" value="4">
+                                    <label for="teamwork4" class="star-label"><i class="fas fa-star"></i></label>
+                                    <input type="radio" id="teamwork3" name="teamwork" value="3">
+                                    <label for="teamwork3" class="star-label"><i class="fas fa-star"></i></label>
+                                    <input type="radio" id="teamwork2" name="teamwork" value="2">
+                                    <label for="teamwork2" class="star-label"><i class="fas fa-star"></i></label>
+                                    <input type="radio" id="teamwork1" name="teamwork" value="1">
+                                    <label for="teamwork1" class="star-label"><i class="fas fa-star"></i></label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group comments-group">
+                            <label for="comments" class="form-label">
+                                <i class="fas fa-comment-alt"></i>
+                                Additional Comments
+                            </label>
+                            <textarea 
+                                id="comments" 
+                                name="comments"
+                                rows="4" 
+                                placeholder="Share your detailed feedback and suggestions for improvement..."
+                                class="form-textarea"
+                            ></textarea>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary btn-large">
+                                <i class="fas fa-paper-plane"></i>
+                                <span>Submit Rating</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Confirmation Screen -->
+        <section class="screen success-screen" id="confirmationContainer" style="display: none;">
+            <div class="success-container">
+                <div class="success-content">
+                    <div class="success-animation">
+                        <div class="success-icon">
+                            <div class="success-icon-circle">
+                                <i class="fas fa-check"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="success-text">
+                        <h1>Rating Submitted Successfully!</h1>
+                        <p>Thank you for your valuable feedback. Your evaluation has been recorded and will help improve our technical assistant program.</p>
+                    </div>
+                    
+                    <div class="success-actions">
+                        <button id="rateAnotherBtn" class="btn btn-primary btn-large">
+                            <i class="fas fa-plus"></i>
+                            <span>Rate Another TA</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Review Management Screen -->
+        <section class="screen management-screen" id="reviewManagementContainer" style="display: none;">
+            <div class="management-container">
+                <div class="management-header">
+                    <div class="header-actions">
+                        <button onclick="showTASelection()" class="btn btn-secondary btn-icon">
+                            <i class="fas fa-arrow-left"></i>
+                            <span>Back to Selection</span>
+                        </button>
+                        <div class="user-dropdown">
+                            <button class="user-dropdown-trigger" id="userDropdownTrigger3">
+                                <div class="user-info">
+                                    <div class="user-avatar">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div class="user-details">
+                                        <span class="user-name" id="userName3">Loading...</span>
+                                        <span class="user-role" id="userRole3">Loading...</span>
+                                    </div>
+                                </div>
+                                <i class="fas fa-chevron-down dropdown-arrow"></i>
+                            </button>
+                            <div class="user-dropdown-menu" id="userDropdownMenu3">
+                                <button id="logoutButton3" class="dropdown-item logout-item">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    <span>Logout</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="header-content">
+                        <h1 class="page-title">
+                            <i class="fas fa-clipboard-list"></i>
+                            Review Management
+                        </h1>
+                        <h2 class="ta-name">Reviews for <span id="reviewManagementTAName">Loading...</span></h2>
+                    </div>
                 </div>
                 
-                <button type="submit">Login</button>
-                <div id="loginError" class="error-message">Invalid phone number or password</div>
-            </form>
-        </div>
-    </div>
-
-    <!-- TA Selection Screen -->
-    <div class="container" id="taSelectionContainer" style="display: none;">
-        <div class="header">
-            <h1>Select Technical Assistant</h1>
-            <div class="user-info">
-                <span id="userDisplayName"></span>
-                <button id="logoutButton" class="logout-btn">Logout</button>
-            </div>
-        </div>
-        <div class="content">
-            <div class="form-group">
-                <label for="taSelect">Select Technical Assistant</label>
-                <select id="taSelect" required>
-                    <option value="">-- Select TA --</option>
-                    <!-- Options will be populated by JavaScript -->
-                </select>
-                <div id="taSelectError" class="error-message">Please select a TA</div>
-            </div>
-            <button id="proceedToRatingBtn" class="primary-btn">Proceed to Rating</button>
-        </div>
-    </div>
-
-    <!-- Rating Screen -->
-    <div class="container" id="ratingContainer" style="display: none;">
-        <div class="header">
-            <div class="header-row">
-                <button id="backToSelectionBtn" class="back-btn">Back to Selection</button>
-                <h1>Rate Technical Assistant</h1>
-            </div>
-            <div class="user-info">
-                <span id="userDisplayName2"></span>
-                <button id="logoutButton2" class="logout-btn">Logout</button>
-            </div>
-        </div>
-        <div class="content">
-            <h2 id="selectedTAName"></h2>
-            <div id="reviewPeriodDisplay" class="review-period-display" style="margin-bottom: 20px; padding: 10px; background-color: #f0f8ff; border: 1px solid #007bff; border-radius: 5px; color: #007bff; font-weight: bold;"></div>
-            
-            <!-- Officer-specific sections for mentor and officer ratings -->
-            <div id="mentorRatingsSection" class="ratings-section" style="display: none;">
-                <div class="section-header">
-                    <h3>Mentor Ratings</h3>
-                    <div class="section-controls">
-                        <div id="mentorRatingControls" class="rating-controls"></div>
+                <div class="management-content">
+                    <div class="reviews-section">
+                        <div id="existingReviewsList" class="reviews-list"></div>
+                        
+                        <div class="add-review-section">
+                            <button id="addReviewBtn" class="btn btn-primary btn-large">
+                                <i class="fas fa-plus"></i>
+                                <span>Add New Review</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
-                <div id="mentorRatingDisplay" class="rating-display"></div>
             </div>
-            
-            <div id="officerRatingsSection" class="ratings-section" style="display: none;">
-                <div class="section-header">
-                    <h3>Officer Ratings</h3>
-                    <div class="section-controls">
-                        <div id="officerRatingControls" class="rating-controls"></div>
-                    </div>
-                </div>
-                <div id="officerRatingDisplay" class="rating-display"></div>
-            </div>
-            <form id="ratingForm">
-                <div class="rating-group">
-                    <label>Discipline</label>
-                    <div class="star-rating">
-                        <input type="radio" id="discipline5" name="discipline" value="5"><label for="discipline5">★</label>
-                        <input type="radio" id="discipline4" name="discipline" value="4"><label for="discipline4">★</label>
-                        <input type="radio" id="discipline3" name="discipline" value="3"><label for="discipline3">★</label>
-                        <input type="radio" id="discipline2" name="discipline" value="2"><label for="discipline2">★</label>
-                        <input type="radio" id="discipline1" name="discipline" value="1"><label for="discipline1">★</label>
-                    </div>
-                </div>
+        </section>
 
-                <div class="rating-group">
-                    <label>Ethics</label>
-                    <div class="star-rating">
-                        <input type="radio" id="ethics5" name="ethics" value="5"><label for="ethics5">★</label>
-                        <input type="radio" id="ethics4" name="ethics" value="4"><label for="ethics4">★</label>
-                        <input type="radio" id="ethics3" name="ethics" value="3"><label for="ethics3">★</label>
-                        <input type="radio" id="ethics2" name="ethics" value="2"><label for="ethics2">★</label>
-                        <input type="radio" id="ethics1" name="ethics" value="1"><label for="ethics1">★</label>
-                    </div>
-                </div>
-
-                <div class="rating-group">
-                    <label>Knowledge</label>
-                    <div class="star-rating">
-                        <input type="radio" id="knowledge5" name="knowledge" value="5"><label for="knowledge5">★</label>
-                        <input type="radio" id="knowledge4" name="knowledge" value="4"><label for="knowledge4">★</label>
-                        <input type="radio" id="knowledge3" name="knowledge" value="3"><label for="knowledge3">★</label>
-                        <input type="radio" id="knowledge2" name="knowledge" value="2"><label for="knowledge2">★</label>
-                        <input type="radio" id="knowledge1" name="knowledge" value="1"><label for="knowledge1">★</label>
-                    </div>
-                </div>
-
-                <div class="rating-group">
-                    <label>Communication</label>
-                    <div class="star-rating">
-                        <input type="radio" id="communication5" name="communication" value="5"><label for="communication5">★</label>
-                        <input type="radio" id="communication4" name="communication" value="4"><label for="communication4">★</label>
-                        <input type="radio" id="communication3" name="communication" value="3"><label for="communication3">★</label>
-                        <input type="radio" id="communication2" name="communication" value="2"><label for="communication2">★</label>
-                        <input type="radio" id="communication1" name="communication" value="1"><label for="communication1">★</label>
-                    </div>
-                </div>
-
-                <div class="rating-group">
-                    <label>Teamwork</label>
-                    <div class="star-rating">
-                        <input type="radio" id="teamwork5" name="teamwork" value="5"><label for="teamwork5">★</label>
-                        <input type="radio" id="teamwork4" name="teamwork" value="4"><label for="teamwork4">★</label>
-                        <input type="radio" id="teamwork3" name="teamwork" value="3"><label for="teamwork3">★</label>
-                        <input type="radio" id="teamwork2" name="teamwork" value="2"><label for="teamwork2">★</label>
-                        <input type="radio" id="teamwork1" name="teamwork" value="1"><label for="teamwork1">★</label>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="comments">Comments</label>
-                    <textarea id="comments" rows="4" placeholder="Enter your feedback here"></textarea>
-                </div>
-
-                <button type="submit" class="primary-btn">Submit Rating</button>
-                <div id="ratingError" class="error-message"></div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Confirmation Screen -->
-    <div class="container" id="confirmationContainer" style="display: none;">
-        <div class="header">
-            <h1>Rating Submitted</h1>
-            <div class="user-info">
-                <span id="userDisplayName3"></span>
-                <button id="logoutButton3" class="logout-btn">Logout</button>
-            </div>
-        </div>
-        <div class="content">
-            <div class="success-message">
-                <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
-                    <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
-                    <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
-                </svg>
-                <h2>Thank you for your feedback!</h2>
-                <p>Your rating has been successfully submitted.</p>
-            </div>
-            <button id="rateAnotherBtn" class="primary-btn">Rate Another TA</button>
-        </div>
-    </div>
-
-    <!-- Review Management Screen -->
-    <div class="container" id="reviewManagementContainer" style="display: none;">
-        <div class="header">
-            <div class="header-row">
-                <button onclick="showTASelection()" class="back-btn">Back to Selection</button>
-                <h1>Review Management</h1>
-            </div>
-            <div class="user-info">
-                <span id="userDisplayName4"></span>
-                <button onclick="logout()" class="logout-btn">Logout</button>
-            </div>
-        </div>
-        <div class="content">
-            <h2>Reviews for <span id="reviewManagementTAName"></span></h2>
-            <div id="existingReviewsList"></div>
-            <button id="addReviewBtn" class="primary-btn" style="margin-top: 20px;">+ Add Review</button>
-        </div>
-    </div>
+    </main>
 
     <!-- Date Range Selection Modal -->
     <div id="dateRangeModal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Select Review Period</h3>
-                <span class="close" onclick="ScreenManager.closeDateRangeModal()">&times;</span>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label for="startDate">Start Date</label>
-                    <input type="date" id="startDate" required>
+        <div class="modal-backdrop"></div>
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>
+                        <i class="fas fa-calendar-alt"></i>
+                        Select Review Period
+                    </h3>
+                    <button class="modal-close" onclick="ScreenManager.closeDateRangeModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
-                <div class="form-group">
-                    <label for="endDate">End Date</label>
-                    <input type="date" id="endDate" required>
+                
+                <div class="modal-body">
+                    <form class="date-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="startDate">
+                                    <i class="fas fa-play"></i>
+                                    Start Date
+                                </label>
+                                <input type="date" id="startDate" required class="form-input">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="endDate">
+                                    <i class="fas fa-stop"></i>
+                                    End Date
+                                </label>
+                                <input type="date" id="endDate" required class="form-input">
+                            </div>
+                        </div>
+                        
+                        <div id="dateRangeError" class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span class="error-text"></span>
+                        </div>
+                    </form>
                 </div>
-                <div id="dateRangeError" class="error-message"></div>
+                
                 <div class="modal-footer">
-                    <button type="button" onclick="ScreenManager.closeDateRangeModal()" class="secondary-btn">Cancel</button>
-                    <button type="button" id="proceedWithDatesBtn" class="primary-btn" disabled>Proceed</button>
+                    <button type="button" onclick="ScreenManager.closeDateRangeModal()" class="btn btn-secondary">
+                        <span>Cancel</span>
+                    </button>
+                    <button type="button" id="proceedWithDatesBtn" class="btn btn-primary" disabled>
+                        <span>Proceed</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- JavaScript Modules -->
-    <script src="js/config.js" defer></script>
-    <script src="js/state.js" defer></script>
-    <script src="js/dom-elements.js" defer></script>
-    <script src="js/ui-utils.js" defer></script>
-    <script src="js/date-utils.js" defer></script>
-    <script src="js/api-service.js" defer></script>
-    <script src="js/screen-manager.js" defer></script>
-    <script src="js/ta-manager.js" defer></script>
-    <script src="js/auth-manager.js" defer></script>
-    <script src="js/rating-manager.js" defer></script>
-    <script src="js/review-manager.js" defer></script>
-    <script src="js/officer-rating-manager.js" defer></script>
-    <script src="js/event-handlers.js" defer></script>
-    <script src="js/app.js" defer></script>
+    <!-- Main Application Entry Point -->
+    <script type="module" src="/js/main.js"></script>
 </body>
 </html>

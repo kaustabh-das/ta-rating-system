@@ -1,0 +1,85 @@
+/* ==========================================
+   Modal Styles (Date Range Selection)
+   ========================================== */
+
+/* Modal */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-4);
+}
+
+.modal-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+}
+
+.modal-dialog {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+}
+
+.modal-content {
+    background-color: white;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-2xl);
+    overflow: hidden;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-6);
+    border-bottom: 1px solid var(--secondary-200);
+}
+
+.modal-header h3 {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--secondary-900);
+}
+
+.modal-close {
+    padding: var(--space-2);
+    background-color: transparent;
+    border: none;
+    color: var(--secondary-500);
+    cursor: pointer;
+    border-radius: var(--radius);
+    transition: all var(--transition-fast);
+}
+
+.modal-close:hover {
+    background-color: var(--secondary-100);
+    color: var(--secondary-700);
+}
+
+.modal-body {
+    padding: var(--space-6);
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-3);
+    padding: var(--space-6);
+    border-top: 1px solid var(--secondary-200);
+    background-color: var(--secondary-50);
+}

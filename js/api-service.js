@@ -172,3 +172,9 @@ class APIService {
         }
     }
 }
+
+// Export the APIService class
+export { APIService };
+
+// For backward compatibility (can be removed later)
+window.APIService = APIService;

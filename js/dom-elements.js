@@ -21,7 +21,14 @@ class DOMElements {
         this.reviewManagementContainer = document.getElementById('reviewManagementContainer');
         this.dateRangeModal = document.getElementById('dateRangeModal');
 
-        // User display elements
+        // Header elements
+        this.mainHeader = document.getElementById('mainHeader');
+        this.globalUserName = document.getElementById('globalUserName');
+        this.globalUserRole = document.getElementById('globalUserRole');
+        this.globalLogoutBtn = document.getElementById('globalLogoutBtn');
+        this.navBreadcrumb = document.getElementById('navBreadcrumb');
+
+        // User display elements (legacy - keeping for compatibility)
         this.userDisplayName = document.getElementById('userDisplayName');
         this.userDisplayName2 = document.getElementById('userDisplayName2');
         this.userDisplayName3 = document.getElementById('userDisplayName3');
@@ -41,6 +48,7 @@ class DOMElements {
         this.logoutButton = document.getElementById('logoutButton');
         this.logoutButton2 = document.getElementById('logoutButton2');
         this.logoutButton3 = document.getElementById('logoutButton3');
+        this.globalLogoutBtn = document.getElementById('globalLogoutBtn');
         this.backToSelectionBtn = document.getElementById('backToSelectionBtn');
         this.rateAnotherBtn = document.getElementById('rateAnotherBtn');
 
@@ -78,6 +86,7 @@ class DOMElements {
     }
 
     updateUserDisplays(userInfo) {
+        // Update legacy user displays (keeping for compatibility)
         const elements = [
             this.userDisplayName,
             this.userDisplayName2,
@@ -88,6 +97,52 @@ class DOMElements {
         elements.forEach(element => {
             if (element) element.textContent = userInfo;
         });
+
+        // Update modern header user info
+        if (this.globalUserName) {
+            this.globalUserName.textContent = userInfo.name || userInfo;
+        }
+        if (this.globalUserRole) {
+            this.globalUserRole.textContent = userInfo.role || 'User';
+        }
+    }
+
+    showHeader() {
+        if (this.mainHeader) {
+            this.mainHeader.style.display = 'block';
+        }
+    }
+
+    hideHeader() {
+        if (this.mainHeader) {
+            this.mainHeader.style.display = 'none';
+        }
+    }
+
+    updateBreadcrumb(text) {
+        if (this.navBreadcrumb) {
+            this.navBreadcrumb.innerHTML = `<span class="breadcrumb-item active">${text}</span>`;
+        }
+    }
+
+    showError(element, message) {
+        if (element) {
+            const errorText = element.querySelector('.error-text');
+            if (errorText) {
+                errorText.textContent = message;
+            } else {
+                element.textContent = message;
+            }
+            element.classList.add('show');
+            element.style.display = 'flex';
+        }
+    }
+
+    hideError(element) {
+        if (element) {
+            element.classList.remove('show');
+            element.style.display = 'none';
+        }
     }
 
     setBodyStyle(className = '', styles = {}) {
@@ -97,4 +152,7 @@ class DOMElements {
 }
 
 // Global DOM elements instance
-const domElements = new DOMElements();
+export const domElements = new DOMElements();
+
+// For backward compatibility (can be removed later)
+window.domElements = domElements;

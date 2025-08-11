@@ -7,8 +7,12 @@ class OfficerRatingManager {
             UIUtils.showLoading('Loading rating data...');
             
             // Show the officer sections but keep them hidden initially
+            const officerDashboard = document.getElementById('officerDashboard');
             const mentorSection = document.getElementById('mentorRatingsSection');
             const officerSection = document.getElementById('officerRatingsSection');
+            
+            // Show the officer dashboard container
+            if (officerDashboard) officerDashboard.style.display = 'block';
             
             // Hide the regular rating form and review period display
             domElements.ratingForm.style.display = 'none';
@@ -159,7 +163,7 @@ class OfficerRatingManager {
         const addButton = document.createElement('button');
         addButton.type = 'button';
         addButton.className = 'compact-btn';
-        addButton.textContent = '+ Add New Rating';
+        addButton.textContent = '+ Rating';
         addButton.style.whiteSpace = 'nowrap';
         
         addButton.addEventListener('click', () => {
@@ -273,76 +277,60 @@ class OfficerRatingManager {
         }
     }
     
-    // Create HTML for displaying rating data
+    // Create modern rating display for officer sections
     static createRatingDisplayHTML(rating) {
         const ratingDate = DateUtils.formatDateCompact(new Date(rating.timestamp));
         
-        const categories = [
-            { key: 'discipline', label: 'Discipline' },
-            { key: 'ethics', label: 'Ethics' },
-            { key: 'knowledge', label: 'Knowledge' },
-            { key: 'communication', label: 'Communication' },
-            { key: 'teamwork', label: 'Teamwork' }
-        ];
+        // Create rater info object for modern display
+        const raterInfo = {
+            name: rating.raterName,
+            type: rating.raterType,
+            date: ratingDate
+        };
         
-        let html = `
-            <div style="margin-bottom: 15px;">
-                <p><strong>Rated by:</strong> ${rating.raterName} (${rating.raterType})</p>
-                <p><strong>Date:</strong> ${ratingDate}</p>
-                <p><strong>Period:</strong> ${rating.startDate} - ${rating.endDate}</p>
-            </div>
+        // Create modern rating display using UIUtils
+        const modernDisplay = UIUtils.createModernRatingDisplay(rating, raterInfo, RATING_CATEGORIES, rating.comments);
+        
+        // Add period information to the rating info header
+        const infoHeader = modernDisplay.querySelector('.rating-info-header');
+        // if (infoHeader && rating.startDate && rating.endDate) {
+        //     const periodRow = document.createElement('div');
+        //     periodRow.className = 'info-row';
             
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
-                <thead>
-                    <tr>
-                        <th style="border: 1px solid #ddd; padding: 10px; background-color: #e9ecef; text-align: left;">Category</th>
-                        <th style="border: 1px solid #ddd; padding: 10px; background-color: #e9ecef; text-align: center;">Rating</th>
-                    </tr>
-                </thead>
-                <tbody>
-        `;
-        
-        categories.forEach(category => {
-            const ratingValue = rating[category.key] || 0;
-            const stars = '★'.repeat(ratingValue) + '☆'.repeat(5 - ratingValue);
+        //     const periodLabel = document.createElement('span');
+        //     periodLabel.className = 'info-label';
+        //     periodLabel.textContent = 'PERIOD:';
             
-            html += `
-                <tr>
-                    <td style="border: 1px solid #ddd; padding: 8px;">${category.label}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">
-                        <span style="color: #ffc107; font-size: 1.1em;">${stars}</span>
-                        <span style="margin-left: 5px; color: #666;">(${ratingValue}/5)</span>
-                    </td>
-                </tr>
-            `;
-        });
+        //     const periodValue = document.createElement('span');
+        //     periodValue.className = 'info-value';
+        //     periodValue.textContent = `${rating.startDate} - ${rating.endDate}`;
+            
+        //     periodRow.appendChild(periodLabel);
+        //     periodRow.appendChild(periodValue);
+        //     infoHeader.appendChild(periodRow);
+        // }
         
-        html += `
-                </tbody>
-            </table>
-        `;
+        // Note: Comments are now included in the modern display, no need to add separately
         
-        if (rating.comments) {
-            html += `
-                <div style="margin-top: 15px;">
-                    <strong>Comments:</strong>
-                    <p style="margin-top: 5px; padding: 10px; background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 3px;">
-                        ${rating.comments}
-                    </p>
-                </div>
-            `;
-        }
-        
-        return html;
+        return modernDisplay.outerHTML;
     }
     
-    // Reset sections when switching TAs
+    // Reset sections when switching TAs or showing new rating screen
     static resetSections() {
+        const officerDashboard = document.getElementById('officerDashboard');
         const mentorSection = document.getElementById('mentorRatingsSection');
         const officerSection = document.getElementById('officerRatingsSection');
         
-        if (mentorSection) mentorSection.style.display = 'none';
-        if (officerSection) officerSection.style.display = 'none';
+        // Use important to override CSS !important rules
+        if (officerDashboard) {
+            officerDashboard.style.setProperty('display', 'none', 'important');
+        }
+        if (mentorSection) {
+            mentorSection.style.setProperty('display', 'none', 'important');
+        }
+        if (officerSection) {
+            officerSection.style.setProperty('display', 'none', 'important');
+        }
         
         // Clear section contents
         const mentorControls = document.getElementById('mentorRatingControls');
@@ -356,3 +344,9 @@ class OfficerRatingManager {
         if (officerDisplay) officerDisplay.innerHTML = '';
     }
 }
+
+// Export the OfficerRatingManager class
+export { OfficerRatingManager };
+
+// For backward compatibility (can be removed later)
+window.OfficerRatingManager = OfficerRatingManager;

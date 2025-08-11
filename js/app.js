@@ -27,5 +27,8 @@ window.logout = function() {
     AuthManager.logout();
 };
 
-// Initialize the app when DOM is loaded
-window.addEventListener('DOMContentLoaded', App.initialize);
+// Export the App class
+export { App };
+
+// For backward compatibility (can be removed later)
+window.App = App;

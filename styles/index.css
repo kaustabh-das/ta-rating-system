@@ -1,0 +1,20 @@
+/* ==========================================
+   TA Rating System - Main Styles Entry Point
+   ========================================== */
+
+/* Import base styles and common components */
+@import 'base.css';
+
+/* Import screen-specific styles */
+@import 'login.css';
+@import 'dashboard.css';
+@import 'rating.css';
+@import 'success.css';
+@import 'review-management.css';
+
+/* Import component styles */
+@import 'rating-components.css';
+@import 'modal.css';
+
+/* Import responsive and utility styles */
+@import 'responsive.css';

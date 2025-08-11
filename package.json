@@ -1,0 +1,26 @@
+{
+  "name": "ta-rating-system",
+  "version": "1.0.0",
+  "description": "A comprehensive rating system for Technical Assistants",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "serve": "vite preview --port 3000"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "@vitejs/plugin-legacy": "^5.0.0",
+    "terser": "^5.0.0"
+  },
+  "dependencies": {},
+  "keywords": [
+    "rating-system",
+    "technical-assistant",
+    "education",
+    "evaluation"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}

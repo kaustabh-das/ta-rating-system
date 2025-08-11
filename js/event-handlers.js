@@ -7,6 +7,7 @@ class EventHandlers {
         EventHandlers.setupRatingHandlers();
         EventHandlers.setupNavigationHandlers();
         EventHandlers.setupDateRangeHandlers();
+        EventHandlers.setupUserDropdowns();
     }
 
     // Setup login form handlers
@@ -78,7 +79,7 @@ class EventHandlers {
     // Setup navigation handlers
     static setupNavigationHandlers() {
         // Logout buttons
-        [domElements.logoutButton, domElements.logoutButton2, domElements.logoutButton3].forEach(button => {
+        [domElements.logoutButton, domElements.logoutButton2, domElements.logoutButton3, domElements.globalLogoutBtn].forEach(button => {
             if (button) {
                 button.addEventListener('click', AuthManager.logout);
             }
@@ -128,4 +129,67 @@ class EventHandlers {
         // Setup date input change handlers
         DateUtils.setupDateInputHandlers();
     }
+
+    // Setup user dropdown handlers
+    static setupUserDropdowns() {
+        // Get all user dropdown triggers
+        const dropdownTriggers = document.querySelectorAll('.user-dropdown-trigger');
+        
+        dropdownTriggers.forEach(trigger => {
+            const dropdown = trigger.closest('.user-dropdown');
+            const menu = dropdown.querySelector('.user-dropdown-menu');
+            
+            // Toggle dropdown on click
+            trigger.addEventListener('click', function(e) {
+                e.stopPropagation();
+                
+                // Close other dropdowns
+                document.querySelectorAll('.user-dropdown.open').forEach(otherDropdown => {
+                    if (otherDropdown !== dropdown) {
+                        otherDropdown.classList.remove('open');
+                    }
+                });
+                
+                // Toggle current dropdown
+                dropdown.classList.toggle('open');
+            });
+        });
+        
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function() {
+            document.querySelectorAll('.user-dropdown.open').forEach(dropdown => {
+                dropdown.classList.remove('open');
+            });
+        });
+        
+        // Prevent dropdown from closing when clicking inside menu
+        document.querySelectorAll('.user-dropdown-menu').forEach(menu => {
+            menu.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        });
+    }
+
+    // Update user info in all dropdowns
+    static updateUserInfo(userName, userRole) {
+        // Update all user name and role elements
+        document.querySelectorAll('.user-name').forEach(element => {
+            if (element.id.startsWith('userName')) {
+                element.textContent = userName;
+            }
+        });
+        
+        document.querySelectorAll('.user-role').forEach(element => {
+            if (element.id.startsWith('userRole')) {
+                element.textContent = userRole;
+            }
+        });
+    }
 }
+
+
+// Export the EventHandlers class
+export { EventHandlers };
+
+// For backward compatibility (can be removed later)
+window.EventHandlers = EventHandlers;

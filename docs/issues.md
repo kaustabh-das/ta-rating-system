@@ -1,0 +1,12 @@
+** UI Issues
+- [ ] Check the date issue in windows as it was suppose to be a local browser configuration | Status: Pending | Verified: [ ]
+- [x] The data popup is not getting closed on cross of cancel clicking | Status: Fixed | Verified: [ ]
+- [x] [Minor]In the date range drop down the current selected date range should not show | Status: Fixed | Verified: [ ]
+- [x] The blue box showing the date range is redundent on existing rating show screen but needed while adding new rating | Status: Fixed | Verified: [ ]
+- [x] The date range drop down div has more padding to it right side | Status: Fixed | Verified: [ ]
+- [x] After selecting the date range from adding new rating the existing rating and the drop down for existing rating should not show only the blue box with selected date range and the rating items should show | Status: Fixed | Verified: [ ]
+- [x] A user with no rating but the rating screen the last users rating data is showing | Status: Fixed | Verified: [ ]
+- [x] No rating user's rating screen should not have the rating elemnts directily in the rating screen it should only come after new rating button is clicked and then the next screen should show the rating elements. | Status: Fixed | Verified: [ ]
+- [x] Rating data from previous TA/user still showing when switching to TA with no ratings | Status: Fixed | Verified: [ ]
+- [x] After TA selection, when rating data is displayed the dropdown shows "Select a rating period" instead of the currently selected period | Status: Fixed | Verified: [x]
+- [ ] 

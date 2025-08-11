@@ -169,3 +169,9 @@ class DateUtils {
         });
     }
 }
+
+// Export the DateUtils class
+export { DateUtils };
+
+// For backward compatibility (can be removed later)
+window.DateUtils = DateUtils;

@@ -1,5 +1,5 @@
 // Configuration and Constants
-const CONFIG = {
+export const CONFIG = {
     apiUrl: 'https://script.google.com/macros/s/AKfycbz09ywNpQETLLvf178Cf50Kp2MRZBMUKo35Jc44Zvk5k0Na6ePZJ5p6hHsmtlSrzTzw/exec',
     MINIMUM_REVIEW_PERIOD_DAYS: 90,
     DATE_FORMAT: 'en-GB', // DD/MM/YYYY format
@@ -7,7 +7,7 @@ const CONFIG = {
 };
 
 // Mock data for fallback
-const MOCK_DATA = {
+export const MOCK_DATA = {
     users: [
         { phoneNumber: "1234567890", password: "password123", userType: "mentor", name: "John Mentor" },
         { phoneNumber: "9876543210", password: "securepass", userType: "officer", name: "Susan Officer" }
@@ -20,10 +20,15 @@ const MOCK_DATA = {
 };
 
 // Rating categories configuration
-const RATING_CATEGORIES = [
+export const RATING_CATEGORIES = [
     { key: 'discipline', label: 'Discipline' },
     { key: 'ethics', label: 'Ethics' },
     { key: 'knowledge', label: 'Knowledge' },
     { key: 'communication', label: 'Communication' },
     { key: 'teamwork', label: 'Teamwork' }
 ];
+
+// For backward compatibility (can be removed later)
+window.CONFIG = CONFIG;
+window.MOCK_DATA = MOCK_DATA;
+window.RATING_CATEGORIES = RATING_CATEGORIES;

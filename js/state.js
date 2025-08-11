@@ -157,4 +157,7 @@ class AppState {
 }
 
 // Global state instance
-const appState = new AppState();
+export const appState = new AppState();
+
+// For backward compatibility (can be removed later)
+window.appState = appState;
