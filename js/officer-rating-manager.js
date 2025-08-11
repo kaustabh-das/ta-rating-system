@@ -289,7 +289,7 @@ class OfficerRatingManager {
         };
         
         // Create modern rating display using UIUtils
-        const modernDisplay = UIUtils.createModernRatingDisplay(rating, raterInfo);
+        const modernDisplay = UIUtils.createModernRatingDisplay(rating, raterInfo, RATING_CATEGORIES, rating.comments);
         
         // Add period information to the rating info header
         const infoHeader = modernDisplay.querySelector('.rating-info-header');
@@ -310,13 +310,7 @@ class OfficerRatingManager {
         //     infoHeader.appendChild(periodRow);
         // }
         
-        // Add comments section if they exist
-        if (rating.comments) {
-            const commentsSection = UIUtils.createModernCommentsSection(rating.comments);
-            if (commentsSection) {
-                modernDisplay.appendChild(commentsSection);
-            }
-        }
+        // Note: Comments are now included in the modern display, no need to add separately
         
         return modernDisplay.outerHTML;
     }

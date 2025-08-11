@@ -1,0 +1,28 @@
+/* Dev Automation Indicator Styles */
+.dev-automation-indicator {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 9999;
+  background: #222;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: "JetBrains Mono", "Inter", monospace;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  opacity: 0.95;
+  pointer-events: none;
+  transition: "background" 0.2s, "color" 0.2s;
+}
+.dev-automation-indicator.disabled {
+  background: #888;
+  color: #eee;
+}
+.dev-automation-indicator.working {
+  background: #007bff;
+  color: #fff;
+}
+body.development {
+  outline: 2px dashed #007bff;
+}

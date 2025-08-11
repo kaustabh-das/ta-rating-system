@@ -32,8 +32,3 @@ export { App };
 
 // For backward compatibility (can be removed later)
 window.App = App;
-
-// Initialize the app when DOM is loaded (for ES6 module system)
-if (typeof window !== 'undefined') {
-    window.addEventListener('DOMContentLoaded', App.initialize);
-}

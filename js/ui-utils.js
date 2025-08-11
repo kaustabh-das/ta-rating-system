@@ -204,7 +204,7 @@ class UIUtils {
     }
 
     // Create modern card-based rating display
-    static createModernRatingDisplay(ratings, raterInfo, categories = RATING_CATEGORIES) {
+    static createModernRatingDisplay(ratings, raterInfo, categories = RATING_CATEGORIES, comments = null) {
         const container = document.createElement('div');
         container.className = 'rating-details-modern';
         
@@ -290,6 +290,24 @@ class UIUtils {
             categoryCard.appendChild(categoryRating);
             rightContainer.appendChild(categoryCard);
         });
+        
+        // Add comments section to the rightContainer if comments exist
+        if (comments && comments.trim() !== '') {
+            const commentsSection = document.createElement('div');
+            commentsSection.className = 'rating-comments-section';
+            
+            const commentsHeader = document.createElement('div');
+            commentsHeader.className = 'comments-header';
+            commentsHeader.innerHTML = '<i class="fas fa-comment-alt"></i> Additional Comments';
+            
+            const commentsText = document.createElement('div');
+            commentsText.className = 'comments-text';
+            commentsText.textContent = comments;
+            
+            commentsSection.appendChild(commentsHeader);
+            commentsSection.appendChild(commentsText);
+            rightContainer.appendChild(commentsSection);
+        }
         
         // Assemble the two-column layout
         twoColumnContainer.appendChild(leftContainer);

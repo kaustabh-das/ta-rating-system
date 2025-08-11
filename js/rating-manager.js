@@ -213,16 +213,10 @@ class RatingManager {
             date: DateUtils.formatDateCompact(new Date(rating.timestamp))
         };
         
-        const modernDisplay = UIUtils.createModernRatingDisplay(rating, raterInfo);
+        const modernDisplay = UIUtils.createModernRatingDisplay(rating, raterInfo, RATING_CATEGORIES, rating.comments);
         ratingDisplay.appendChild(modernDisplay);
         
-        // Add comments if any
-        if (rating.comments) {
-            const commentsSection = UIUtils.createModernCommentsSection(rating.comments);
-            if (commentsSection) {
-                ratingDisplay.appendChild(commentsSection);
-            }
-        }
+        // Note: Comments are now included in the modern display, no need to add separately
         
         // Insert rating display after review period display
         domElements.reviewPeriodDisplay.parentNode.insertBefore(ratingDisplay, domElements.reviewPeriodDisplay.nextSibling);

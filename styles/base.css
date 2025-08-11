@@ -252,8 +252,6 @@ body.modern-theme::before {
     display: flex;
     align-items: center;
     gap: var(--space-3);
-    padding: var(--space-2) var(--space-3);
-    background-color: var(--secondary-100);
     border-radius: var(--radius-lg);
 }
 
@@ -626,4 +624,186 @@ body.modern-theme::before {
     font-size: var(--font-size-base);
     color: var(--secondary-600);
     font-weight: var(--font-weight-medium);
+}
+
+/* ==========================================
+   User Dropdown Component
+   ========================================== */
+.user-dropdown {
+    position: relative;
+    display: inline-block;
+    margin-left: auto; /* Push to right corner */
+}
+
+.user-dropdown-trigger {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    background-color: rgba(15, 23, 42, 0.95);
+    border: 1px solid rgba(15, 23, 42, 0.95);
+    border-radius: 24px;
+    color: white;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    min-height: 48px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.user-dropdown-trigger:hover {
+    background-color: rgba(15, 23, 42, 1);
+    border-color: rgba(59, 130, 246, 0.5);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.user-dropdown-trigger .user-info {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.user-dropdown-trigger .user-avatar {
+    width: 32px;
+    height: 32px;
+    background-color: var(--primary-600);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: white;
+    flex-shrink: 0;
+}
+
+.user-dropdown-trigger .user-details {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1.2;
+    min-width: 0; /* Allow text to truncate */
+}
+
+.user-dropdown-trigger .user-name {
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-size-sm);
+    color: white;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+}
+
+.user-dropdown-trigger .user-role {
+    font-size: var(--font-size-xs);
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: lowercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+}
+
+.user-dropdown-trigger .dropdown-arrow {
+    font-size: 12px;
+    transition: transform var(--transition-fast);
+    color: rgba(255, 255, 255, 0.7);
+    margin-left: var(--space-1);
+    flex-shrink: 0;
+}
+
+.user-dropdown.open .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+.user-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: var(--space-1);
+    min-width: 180px;
+    background: white;
+    border: 1px solid var(--secondary-200);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: all var(--transition-fast);
+    z-index: 1000;
+}
+
+.user-dropdown.open .user-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    width: 100%;
+    padding: var(--space-3) var(--space-4);
+    background: none;
+    border: none;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    text-align: left;
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+    border-radius: var(--radius-lg);
+}
+
+.dropdown-item:hover {
+    background: var(--secondary-50);
+}
+
+.logout-item {
+    color: var(--error-600);
+}
+
+.logout-item:hover {
+    background: var(--error-50);
+    color: var(--error-700);
+}
+
+/* Header actions layout */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-left: auto; /* Push entire actions section to right */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .user-dropdown-trigger .user-details {
+        display: none;
+    }
+    
+    .user-dropdown-trigger {
+        padding: var(--space-2);
+        min-width: 40px;
+        justify-content: center;
+    }
+    
+    .user-dropdown-trigger .user-info {
+        gap: 0;
+    }
+    
+    .user-dropdown-trigger .dropdown-arrow {
+        margin-left: 0;
+        position: absolute;
+        bottom: 2px;
+        right: 2px;
+        font-size: 8px;
+    }
+    
+    .user-dropdown-menu {
+        right: -8px;
+        min-width: 160px;
+    }
 }
