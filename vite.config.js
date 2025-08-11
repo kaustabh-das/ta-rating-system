@@ -6,7 +6,8 @@ export default defineConfig({
   root: '.',
   
   // Base public path when served in development or production
-  base: '/',
+  // Use relative paths for GitHub Pages deployment
+  base: './',
   
   // Development server configuration
   server: {
