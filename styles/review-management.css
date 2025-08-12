@@ -222,7 +222,7 @@
 
 .dropdown-menu div:hover,
 .dropdown-item:hover {
-    background: linear-gradient(135deg, var(--primary-50), var(--primary-100)) !important;
+    background: linear-gradient(135deg, var(--primary-50), var(--primary-100));
     color: var(--primary-700) !important;
     transform: translateX(4px);
 }

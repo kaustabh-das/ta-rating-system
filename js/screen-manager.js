@@ -62,7 +62,7 @@ class ScreenManager {
         }
         
         // Update page title for new rating
-        const pageTitle = document.querySelector('.page-title');
+        const pageTitle = document.querySelector('#ratingContainer .page-title');
         if (pageTitle) {
             pageTitle.innerHTML = '<i class="fas fa-plus-circle"></i>Add New Rating';
         }
@@ -104,7 +104,7 @@ class ScreenManager {
         OfficerRatingManager.resetSections();
         
         // Update page title for viewing past ratings
-        const pageTitle = document.querySelector('.page-title');
+        const pageTitle = document.querySelector('#ratingContainer .page-title');
         if (pageTitle) {
             pageTitle.innerHTML = '<i class="fas fa-star"></i>Past TA Ratings';
         }

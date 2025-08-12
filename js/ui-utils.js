@@ -155,14 +155,27 @@ class UIUtils {
     }
 
     // Dropdown utilities
-    static createDropdown(options, onSelect, placeholder = 'Select...') {
+    static createDropdown(options, onSelect, placeholder = 'Select...', disableIfSingle = false) {
         const dropdownContainer = document.createElement('div');
         dropdownContainer.className = 'dropdown-container';
         
         const dropdownButton = document.createElement('button');
         dropdownButton.type = 'button';
         dropdownButton.className = 'dropdown-btn';
-        dropdownButton.textContent = placeholder; // Remove automatic ▼ addition
+        
+        // Check if dropdown should be disabled due to single option
+        const shouldDisable = disableIfSingle && options.length <= 1;
+        
+        if (shouldDisable) {
+            // Remove arrow from placeholder and disable interaction
+            const cleanPlaceholder = placeholder.replace(' ▼', '').replace('▼', '');
+            dropdownButton.textContent = cleanPlaceholder;
+            dropdownButton.style.cursor = 'default';
+            dropdownButton.style.opacity = '1'; // Keep it visible but not interactive
+            dropdownButton.disabled = true;
+        } else {
+            dropdownButton.textContent = placeholder; // Keep original behavior
+        }
         
         const dropdownMenu = document.createElement('div');
         dropdownMenu.className = 'dropdown-menu';
@@ -175,6 +188,8 @@ class UIUtils {
             menuItem.textContent = option.text;
             
             menuItem.addEventListener('click', function() {
+                if (shouldDisable) return; // Prevent interaction if disabled
+                
                 // Check if the placeholder already had an arrow and preserve it
                 const hasArrow = placeholder.includes('▼');
                 dropdownButton.textContent = hasArrow ? option.text + ' ▼' : option.text;
@@ -187,6 +202,8 @@ class UIUtils {
         
         // Dropdown toggle functionality
         dropdownButton.addEventListener('click', function(e) {
+            if (shouldDisable) return; // Prevent interaction if disabled
+            
             e.stopPropagation();
             const isVisible = dropdownMenu.style.display === 'block';
             dropdownMenu.style.display = isVisible ? 'none' : 'block';

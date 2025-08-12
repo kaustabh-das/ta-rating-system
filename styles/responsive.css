@@ -286,6 +286,36 @@
         padding: 0;
     }
     
+    /* Header actions - ensure consistent positioning for 480px screens */
+    .header-actions {
+        position: fixed !important;
+        top: var(--space-2) !important;
+        left: var(--space-2) !important;
+        right: var(--space-2) !important;
+        z-index: 1000 !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        width: auto !important;
+        pointer-events: none !important;
+    }
+    
+    /* Back button - force to the left */
+    .header-actions .back-btn {
+        position: static !important;
+        order: -1 !important;
+        margin-right: auto !important;
+        pointer-events: auto !important;
+    }
+    
+    /* Logout button - force to the right */
+    .header-actions .logout-btn {
+        position: static !important;
+        order: 999 !important;
+        margin-left: auto !important;
+        pointer-events: auto !important;
+    }
+    
     .login-wrapper {
         max-width: 300px;
         padding: var(--space-3);
@@ -751,11 +781,312 @@
         padding: var(--space-2) var(--space-3);
         font-size: var(--font-size-sm);
     }
+    
+    /* Additional user dropdown adjustments for smaller screens */
+    .dashboard-screen .dashboard-header .header-actions {
+        top: var(--space-4) !important;
+        right: var(--space-4) !important;
+    }
+    
+    /* Override base.css mobile styles - force our layout */
+    .user-dropdown-trigger {
+        padding: var(--space-1) !important;
+        min-height: 32px !important;
+        border-radius: 16px !important;
+        justify-content: space-between !important; /* Space between user-info and arrow */
+        min-width: auto !important;
+        gap: 3px !important;
+        display: flex !important;
+        align-items: center !important;
+        position: relative !important;
+        cursor: pointer !important;
+        pointer-events: auto !important;
+    }
+    
+    /* Force user details to stay visible - override base.css hiding */
+    .user-dropdown-trigger .user-details {
+        display: flex !important;
+        flex-direction: column !important;
+    }
+    
+    .user-dropdown-trigger .user-info {
+        gap: 2px !important;
+        display: flex !important;
+        align-items: center !important;
+        flex: 1 !important; /* Take available space */
+        position: relative !important;
+    }
+    
+    .user-dropdown-trigger .user-avatar {
+        width: 18px !important;
+        height: 18px !important;
+        font-size: 8px !important;
+    }
+    
+    .user-dropdown-trigger .user-name {
+        font-size: 8px !important;
+        max-width: 45px !important;
+        line-height: 1.1 !important;
+    }
+    
+    .user-dropdown-trigger .user-role {
+        font-size: 7px !important;
+        max-width: 45px !important;
+        line-height: 1.1 !important;
+    }
+    
+    /* Override base.css arrow positioning */
+    .user-dropdown-trigger .dropdown-arrow {
+        font-size: 10px !important;
+        margin-left: 0 !important;
+        flex-shrink: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 12px !important;
+        height: 12px !important;
+        position: static !important; /* Override absolute positioning from base.css */
+        bottom: auto !important;
+        right: auto !important;
+    }
+    
+    /* Ensure dropdown functionality works */
+    .user-dropdown {
+        position: relative !important;
+        z-index: 1001 !important;
+    }
+    
+    .user-dropdown-menu {
+        position: absolute !important;
+        z-index: 1002 !important;
+        pointer-events: auto !important;
+        right: 0 !important; /* Override base.css right: -8px */
+        min-width: 120px !important;
+        top: calc(100% + 2px) !important;
+        background: var(--secondary-900) !important;
+        border: 1px solid var(--secondary-800) !important;
+        border-radius: 12px !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        transform: translateY(-10px) !important;
+        transition: all var(--transition-fast) !important;
+        overflow: hidden !important;
+        padding: var(--space-1) !important;
+    }
+    
+    /* Ensure dropdown shows when open */
+    .user-dropdown.open .user-dropdown-menu {
+        opacity: 1 !important;
+        visibility: visible !important;
+        transform: translateY(0) !important;
+    }
+    
+    /* Style dropdown items for mobile */
+    .user-dropdown-menu .dropdown-item,
+    .user-dropdown-menu .logout-item {
+        display: flex !important;
+        align-items: center !important;
+        gap: var(--space-1) !important;
+        width: 100% !important;
+        padding: var(--space-2) var(--space-3) !important;
+        background: transparent !important;
+        border: none !important;
+        font-size: var(--font-size-xs) !important;
+        font-weight: var(--font-weight-medium) !important;
+        text-align: left !important;
+        cursor: pointer !important;
+        transition: all 0.15s ease !important;
+        border-radius: 8px !important;
+        min-height: 32px !important;
+        color: white !important;
+        box-sizing: border-box !important;
+    }
+    
+    .user-dropdown-menu .dropdown-item:hover,
+    .user-dropdown-menu .logout-item:hover {
+        background: var(--secondary-800) !important;
+        color: white !important;
+    }
 }
 
 @media (max-width: 320px) {
-    .user-details {
-        display: none;
+    /* Don't hide user-details completely - keep the layout but make it ultra compact */
+    /* .user-details { display: none; } - Commented out to maintain desktop layout */
+    
+    /* Header actions - ensure consistent positioning for ultra small screens */
+    .header-actions {
+        position: fixed !important;
+        top: var(--space-1) !important;
+        left: var(--space-1) !important;
+        right: var(--space-1) !important;
+        z-index: 1000 !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        width: auto !important;
+        pointer-events: none !important;
+    }
+    
+    /* Back button - force to the left */
+    .header-actions .back-btn {
+        position: static !important;
+        order: -1 !important;
+        margin-right: auto !important;
+        pointer-events: auto !important;
+        padding: var(--space-1) var(--space-2) !important;
+        font-size: var(--font-size-xs) !important;
+        min-height: 28px !important;
+    }
+    
+    /* Logout button - force to the right */
+    .header-actions .logout-btn {
+        position: static !important;
+        order: 999 !important;
+        margin-left: auto !important;
+        pointer-events: auto !important;
+        padding: var(--space-1) var(--space-2) !important;
+        font-size: var(--font-size-xs) !important;
+        min-height: 28px !important;
+    }
+    
+    /* Ultra compact user dropdown for very small screens */
+    .dashboard-screen .dashboard-header .header-actions {
+        top: var(--space-2) !important;
+        right: var(--space-2) !important;
+    }
+    
+    /* Override base.css mobile styles for ultra small screens */
+    .user-dropdown-trigger {
+        padding: 2px 4px !important;
+        min-height: 26px !important;
+        border-radius: 13px !important;
+        justify-content: space-between !important; /* Space between user-info and arrow */
+        min-width: auto !important;
+        gap: 2px !important;
+        display: flex !important;
+        align-items: center !important;
+        position: relative !important;
+        cursor: pointer !important;
+        pointer-events: auto !important;
+    }
+    
+    /* Force user details to stay visible even on very small screens - override base.css */
+    .user-dropdown-trigger .user-details {
+        display: flex !important;
+        flex-direction: column !important;
+    }
+    
+    .user-dropdown-trigger .user-info {
+        gap: 1px !important;
+        display: flex !important;
+        align-items: center !important;
+        flex: 1 !important; /* Take available space */
+        position: relative !important;
+    }
+    
+    .user-dropdown-trigger .user-avatar {
+        width: 14px !important;
+        height: 14px !important;
+        font-size: 6px !important;
+    }
+    
+    .user-dropdown-trigger .user-name {
+        font-size: 7px !important;
+        max-width: 30px !important;
+        line-height: 1 !important;
+    }
+    
+    .user-dropdown-trigger .user-role {
+        font-size: 6px !important;
+        max-width: 30px !important;
+        line-height: 1 !important;
+    }
+    
+    /* Override base.css arrow positioning for ultra small screens */
+    .user-dropdown-trigger .dropdown-arrow {
+        font-size: 8px !important;
+        margin-left: 0 !important;
+        flex-shrink: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 10px !important;
+        height: 10px !important;
+        position: static !important; /* Override absolute positioning from base.css */
+        bottom: auto !important;
+        right: auto !important;
+    }
+    
+    .user-dropdown-menu {
+        min-width: 100px !important;
+        border-radius: 12px !important;
+        right: 0 !important; /* Override base.css right: -8px */
+        top: calc(100% + 2px) !important;
+        background: var(--secondary-900) !important;
+        border: 1px solid var(--secondary-800) !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        transform: translateY(-10px) !important;
+        transition: all var(--transition-fast) !important;
+        overflow: hidden !important;
+        padding: var(--space-1) !important;
+        position: absolute !important;
+        z-index: 1003 !important;
+        pointer-events: auto !important;
+    }
+    
+    /* Ensure dropdown shows when open on ultra small screens */
+    .user-dropdown.open .user-dropdown-menu {
+        opacity: 1 !important;
+        visibility: visible !important;
+        transform: translateY(0) !important;
+    }
+    
+    .dropdown-item,
+    .logout-item {
+        display: flex !important;
+        align-items: center !important;
+        gap: 4px !important;
+        width: 100% !important;
+        padding: var(--space-2) var(--space-1) !important;
+        background: transparent !important;
+        border: none !important;
+        font-size: 10px !important;
+        font-weight: var(--font-weight-medium) !important;
+        text-align: left !important;
+        cursor: pointer !important;
+        transition: all 0.15s ease !important;
+        border-radius: 8px !important;
+        min-height: 28px !important;
+        color: white !important;
+        box-sizing: border-box !important;
+    }
+    
+    .dropdown-item:hover,
+    .logout-item:hover {
+        background: var(--secondary-800) !important;
+        color: white !important;
+    }
+    
+    /* Ensure dropdown is clickable on mobile */
+    .user-dropdown {
+        position: relative !important;
+        z-index: 1001 !important;
+    }
+    
+    .user-dropdown-trigger {
+        position: relative !important;
+        z-index: 1002 !important;
+        cursor: pointer !important;
+        pointer-events: auto !important;
+    }
+    
+    .user-dropdown-menu {
+        position: absolute !important;
+        z-index: 1003 !important;
+        pointer-events: auto !important;
     }
     
     .dashboard-container,
@@ -968,7 +1299,7 @@
 @media (max-width: 768px) {
     /* Header actions container - full width to contain both buttons */
     .header-actions {
-        position: absolute !important;
+        position: fixed !important;
         top: var(--space-3) !important;
         left: var(--space-3) !important;
         right: var(--space-3) !important;
@@ -991,10 +1322,11 @@
         gap: var(--space-1) !important;
     }
     
-    /* Back button - always on the left */
+    /* Back button - force to the left */
     .header-actions .back-btn {
         position: static !important;
-        order: 1 !important;
+        order: -1 !important; /* Force to appear first */
+        margin-right: auto !important; /* Push everything else to the right */
         left: auto !important;
         right: auto !important;
         top: auto !important;
@@ -1003,7 +1335,8 @@
     /* Logout button - always on the right */
     .header-actions .logout-btn {
         position: static !important;
-        order: 2 !important;
+        order: 999 !important; /* Force to appear last */
+        margin-left: auto !important; /* Push to the right */
         left: auto !important;
         right: auto !important;
         top: auto !important;
@@ -1016,29 +1349,77 @@
     
     /* For dashboard screen (TA selection) - move logout button out of header */
     .dashboard-screen #logoutButton {
-        position: fixed !important;
+        /* position: fixed !important; */
         top: var(--space-3) !important;
         right: var(--space-3) !important;
         z-index: 1000 !important;
-        padding: var(--space-2) var(--space-3) !important;
+        padding: var(--space-1) var(--space-2) !important;
         font-size: var(--font-size-xs) !important;
-        min-height: 40px !important;
+        min-height: 0 !important;
         display: flex !important;
         align-items: center !important;
         gap: var(--space-1) !important;
         pointer-events: auto !important;
     }
     
-    /* Reset the header-actions positioning on dashboard but keep it hidden visually */
+    /* Allow header-actions to be visible on dashboard screen */
     .dashboard-screen .dashboard-header .header-actions {
-        position: static !important;
-        visibility: hidden !important;
-        height: 0 !important;
-        overflow: hidden !important;
+        position: fixed !important;
+        top: var(--space-6) !important;
+        right: var(--space-6) !important;
+        z-index: 1000 !important;
+        visibility: visible !important;
+        height: auto !important;
+        overflow: visible !important;
     }
     
-    /* Make the logout button visible even when parent is hidden */
-    .dashboard-screen #logoutButton {
-        visibility: visible !important;
+    /* Mobile adjustments for user dropdown - keep desktop layout but adjust sizes */
+    .user-dropdown-trigger {
+        padding: var(--space-1) var(--space-2) !important;
+        min-height: 36px !important;
+        font-size: var(--font-size-xs) !important;
+        border-radius: 18px !important; /* Maintain proportional border radius */
+        justify-content: flex-start !important; /* Override base.css centering */
+        min-width: auto !important; /* Override base.css min-width */
+    }
+    
+    /* Keep user details visible on mobile - override base.css hiding */
+    .user-dropdown-trigger .user-details {
+        display: flex !important; /* Override display: none from base.css */
+    }
+    
+    .user-dropdown-trigger .user-info {
+        gap: var(--space-1) !important; /* Override gap: 0 from base.css */
+    }
+    
+    .user-dropdown-trigger .user-avatar {
+        width: 24px !important;
+        height: 24px !important;
+        font-size: var(--font-size-xs) !important;
+    }
+    
+    .user-dropdown-trigger .user-name {
+        font-size: var(--font-size-xs) !important;
+        max-width: 80px !important;
+    }
+    
+    .user-dropdown-trigger .user-role {
+        font-size: 10px !important;
+        max-width: 80px !important;
+    }
+    
+    .user-dropdown-trigger .dropdown-arrow {
+        font-size: 10px !important;
+        margin-left: var(--space-1) !important; /* Restore proper margin */
+    }
+    
+    .user-dropdown-menu {
+        min-width: 120px !important;
+    }
+    
+    .dropdown-item {
+        padding: var(--space-1) var(--space-2) !important;
+        font-size: var(--font-size-xs) !important;
+        min-height: 32px !important;
     }
 }
