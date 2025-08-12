@@ -18,6 +18,10 @@ class AppState {
         this.existingReviewPeriods = [];
         this.currentDisplayedPeriod = null;  // Track currently displayed rating period
         
+        // Officer interface - track displayed periods for each section
+        this.currentMentorDisplayedPeriod = null;
+        this.currentOfficerDisplayedPeriod = null;
+        
         // Application state
         this.dataLoaded = false;
     }
@@ -35,6 +39,8 @@ class AppState {
         this.selectedEndDate = '';
         this.existingReviewPeriods = [];
         this.currentDisplayedPeriod = null;
+        this.currentMentorDisplayedPeriod = null;
+        this.currentOfficerDisplayedPeriod = null;
     }
 
     getCurrentUser() {
@@ -55,6 +61,8 @@ class AppState {
         this.selectedEndDate = '';
         this.existingReviewPeriods = [];
         this.currentDisplayedPeriod = null;
+        this.currentMentorDisplayedPeriod = null;
+        this.currentOfficerDisplayedPeriod = null;
     }
 
     getSelectedTA() {
@@ -148,11 +156,33 @@ class AppState {
         this.selectedEndDate = '';
         this.existingReviewPeriods = [];
         this.currentDisplayedPeriod = null;
+        this.currentMentorDisplayedPeriod = null;
+        this.currentOfficerDisplayedPeriod = null;
     }
 
     // Method to clear currently displayed period
     clearDisplayedPeriod() {
         this.currentDisplayedPeriod = null;
+        this.currentMentorDisplayedPeriod = null;
+        this.currentOfficerDisplayedPeriod = null;
+    }
+    
+    // Methods to track officer section displayed periods
+    setMentorDisplayedPeriod(period) {
+        this.currentMentorDisplayedPeriod = period;
+    }
+    
+    setOfficerDisplayedPeriod(period) {
+        this.currentOfficerDisplayedPeriod = period;
+    }
+    
+    getCurrentDisplayedPeriodForSection(userType) {
+        if (userType === 'mentor') {
+            return this.currentMentorDisplayedPeriod;
+        } else if (userType === 'officer') {
+            return this.currentOfficerDisplayedPeriod;
+        }
+        return null;
     }
 }
 

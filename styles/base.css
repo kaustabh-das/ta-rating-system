@@ -74,6 +74,7 @@
     --line-height-relaxed: 1.625;
 
     /* Spacing */
+    --space-xs: 0.125rem;  /* 2px */
     --space-1: 0.25rem;    /* 4px */
     --space-2: 0.5rem;     /* 8px */
     --space-3: 0.75rem;    /* 12px */
@@ -720,19 +721,21 @@ body.modern-theme::before {
 
 .user-dropdown-menu {
     position: absolute;
-    top: 100%;
+    top: calc(100% + 1px);
     right: 0;
-    margin-top: var(--space-1);
-    min-width: 180px;
-    background: white;
-    border: 1px solid var(--secondary-200);
-    border-radius: var(--radius-lg);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    margin-top: 0;
+    min-width: 140px;
+    background: var(--secondary-900);
+    border: 1px solid var(--secondary-800);
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
     opacity: 0;
     visibility: hidden;
-    transform: translateY(-8px);
+    transform: translateY(-10px);
     transition: all var(--transition-fast);
     z-index: 1000;
+    overflow: hidden;
+    /* padding: var(--space-1); */
 }
 
 .user-dropdown.open .user-dropdown-menu {
@@ -746,28 +749,32 @@ body.modern-theme::before {
     align-items: center;
     gap: var(--space-2);
     width: 100%;
-    padding: var(--space-3) var(--space-4);
-    background: none;
+    padding: var(--space-2) var(--space-3);
+    background: transparent;
     border: none;
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-medium);
     text-align: left;
     cursor: pointer;
-    transition: background-color var(--transition-fast);
-    border-radius: var(--radius-lg);
+    transition: all 0.15s ease;
+    border-radius: 12px;
+    min-height: 40px;
+    color: white;
 }
 
-.dropdown-item:hover {
-    background: var(--secondary-50);
+.user-dropdown-menu .logout-item:hover {
+    background: var(--secondary-900);
+    /* border: 1px solid var(--secondary-900); */
+    color: white !important;
+    /* transform: none !important; */
 }
 
-.logout-item {
-    color: var(--error-600);
+.logout-item i {
+    color: rgba(255, 255, 255, 0.8);
 }
 
-.logout-item:hover {
-    background: var(--error-50);
-    color: var(--error-700);
+.user-dropdown.open span {
+    color: white ;
 }
 
 /* Header actions layout */

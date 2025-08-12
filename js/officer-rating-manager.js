@@ -67,6 +67,8 @@ class OfficerRatingManager {
             // Display the most recent mentor rating if available
             const mentorDisplay = document.getElementById('mentorRatingDisplay');
             if (mentorPeriods.length > 0 && mentorDisplay) {
+                // Set the displayed period for mentor section
+                appState.setMentorDisplayedPeriod(mentorPeriods[0]);
                 await OfficerRatingManager.displayRatingForSection(mentorPeriods[0], 'mentor', 'mentorRatingDisplay', false);
             } else if (mentorDisplay) {
                 mentorDisplay.innerHTML = '<p style="color: #666; font-style: italic;">No mentor ratings found for this TA</p>';
@@ -98,6 +100,8 @@ class OfficerRatingManager {
             // Display the most recent officer rating if available
             const officerDisplay = document.getElementById('officerRatingDisplay');
             if (officerPeriods.length > 0 && officerDisplay) {
+                // Set the displayed period for officer section
+                appState.setOfficerDisplayedPeriod(officerPeriods[0]);
                 await OfficerRatingManager.displayRatingForSection(officerPeriods[0], 'officer', 'officerRatingDisplay', false);
             } else if (officerDisplay) {
                 officerDisplay.innerHTML = '<p style="color: #666; font-style: italic;">No officer ratings found for this TA</p>';
@@ -143,15 +147,45 @@ class OfficerRatingManager {
         
         // Create dropdown for existing periods
         if (periods.length > 0) {
-            const dropdownOptions = periods.map(period => ({
+            // Get currently displayed period to filter out from dropdown options
+            const currentDisplayedPeriod = appState.getCurrentDisplayedPeriodForSection(userType);
+            
+            // Filter out the currently displayed period from dropdown options
+            const filteredPeriods = periods.filter(period => {
+                if (!currentDisplayedPeriod) return true;
+                const isCurrentPeriod = period.startDate === currentDisplayedPeriod.startDate && 
+                        period.endDate === currentDisplayedPeriod.endDate;
+                return !isCurrentPeriod;
+            });
+            
+            const dropdownOptions = filteredPeriods.map(period => ({
                 text: `${period.startDate} - ${period.endDate}`,
                 value: period
             }));
             
+            // Determine button text - show currently displayed period if available
+            let buttonText;
+            if (currentDisplayedPeriod) {
+                buttonText = `${currentDisplayedPeriod.startDate} - ${currentDisplayedPeriod.endDate}`;
+            } else if (periods.length > 0) {
+                buttonText = `${periods[0].startDate} - ${periods[0].endDate}`;
+            } else {
+                buttonText = 'No rating periods available';
+            }
+            
+            // Add arrow only if there are dropdown options to select
+            if (dropdownOptions.length > 0) {
+                buttonText += ' ▼';
+            }
+
+            // Disable dropdown if total periods <= 1 or no alternatives to select
+            const shouldDisableDropdown = periods.length <= 1 || filteredPeriods.length === 0;
+
             const dropdown = UIUtils.createDropdown(
                 dropdownOptions,
                 (option) => OfficerRatingManager.displayRatingForSection(option.value, userType, displayElementId),
-                `${dropdownOptions[0].text} ▼`
+                buttonText,
+                shouldDisableDropdown
             );
             
             dropdown.container.style.maxWidth = '250px';
@@ -186,15 +220,45 @@ class OfficerRatingManager {
         
         // Create dropdown for existing periods
         if (periods.length > 0) {
-            const dropdownOptions = periods.map(period => ({
+            // Get currently displayed period to filter out from dropdown options
+            const currentDisplayedPeriod = appState.getCurrentDisplayedPeriodForSection(userType);
+            
+            // Filter out the currently displayed period from dropdown options
+            const filteredPeriods = periods.filter(period => {
+                if (!currentDisplayedPeriod) return true;
+                const isCurrentPeriod = period.startDate === currentDisplayedPeriod.startDate && 
+                        period.endDate === currentDisplayedPeriod.endDate;
+                return !isCurrentPeriod;
+            });
+            
+            const dropdownOptions = filteredPeriods.map(period => ({
                 text: `${period.startDate} - ${period.endDate}`,
                 value: period
             }));
             
+            // Determine button text - show currently displayed period if available
+            let buttonText;
+            if (currentDisplayedPeriod) {
+                buttonText = `${currentDisplayedPeriod.startDate} - ${currentDisplayedPeriod.endDate}`;
+            } else if (periods.length > 0) {
+                buttonText = `${periods[0].startDate} - ${periods[0].endDate}`;
+            } else {
+                buttonText = 'No rating periods available';
+            }
+            
+            // Add arrow only if there are dropdown options to select
+            if (dropdownOptions.length > 0) {
+                buttonText += ' ▼';
+            }
+
+            // Disable dropdown if total periods <= 1 or no alternatives to select
+            const shouldDisableDropdown = periods.length <= 1 || filteredPeriods.length === 0;
+
             const dropdown = UIUtils.createDropdown(
                 dropdownOptions,
                 (option) => OfficerRatingManager.displayRatingForSection(option.value, userType, displayElementId),
-                `${dropdownOptions[0].text} ▼`
+                buttonText,
+                shouldDisableDropdown
             );
             
             dropdown.container.style.maxWidth = '250px';
@@ -222,28 +286,38 @@ class OfficerRatingManager {
                 UIUtils.showLoading('Loading rating data...');
             }
             
+            // Set the currently displayed period for this section
+            if (userType === 'mentor') {
+                appState.setMentorDisplayedPeriod(period);
+            } else if (userType === 'officer') {
+                appState.setOfficerDisplayedPeriod(period);
+            }
+            
+            // Refresh the section's dropdown to exclude the currently displayed period
+            OfficerRatingManager.refreshSectionDropdown(userType);
+
             // Fetch all ratings for this TA
             const response = await fetch(`${CONFIG.apiUrl}?action=getTARatings&taId=${appState.selectedTAId}`);
             if (!response.ok) {
                 throw new Error('Failed to fetch ratings');
             }
-            
+
             const data = await response.json();
-            
+
             // Normalize the rating dates for comparison
             const normalizedRatings = data.ratings.map(rating => ({
                 ...rating,
                 startDate: DateUtils.formatDateStringCompact(rating.startDate),
                 endDate: DateUtils.formatDateStringCompact(rating.endDate)
             }));
-            
+
             // Find the specific rating for this period and user type
             const periodRating = normalizedRatings.find(rating => 
                 rating.raterType === userType &&
                 rating.startDate === period.startDate &&
                 rating.endDate === period.endDate
             );
-            
+
             if (periodRating) {
                 // Display existing rating data
                 displayElement.innerHTML = OfficerRatingManager.createRatingDisplayHTML(periodRating);
@@ -255,17 +329,17 @@ class OfficerRatingManager {
                     </div>
                 `;
             }
-            
+
             if (showLoading) {
                 UIUtils.hideLoading();
             }
-            
+
         } catch (error) {
             console.error('Error loading rating data:', error);
             if (showLoading) {
                 UIUtils.hideLoading();
             }
-            
+
             const displayElement = document.getElementById(displayElementId);
             if (displayElement) {
                 displayElement.innerHTML = `
@@ -275,6 +349,68 @@ class OfficerRatingManager {
                 `;
             }
         }
+    }
+    
+    // Refresh dropdown for a specific section to exclude currently displayed period
+    static refreshSectionDropdown(userType) {
+        const controlsId = userType === 'mentor' ? 'mentorRatingControls' : 'officerRatingControls';
+        const displayElementId = userType === 'mentor' ? 'mentorRatingDisplay' : 'officerRatingDisplay';
+        const controlsContainer = document.getElementById(controlsId);
+        
+        if (!controlsContainer) return;
+        
+        // Get the existing dropdown container
+        const existingDropdown = controlsContainer.querySelector('.dropdown-container');
+        if (!existingDropdown) return;
+        
+        // Get periods for this user type (we need to fetch them again)
+        OfficerRatingManager.fetchReviewPeriods(userType).then(periods => {
+            const currentDisplayedPeriod = appState.getCurrentDisplayedPeriodForSection(userType);
+            
+            // Filter out the currently displayed period
+            const filteredPeriods = periods.filter(period => {
+                if (!currentDisplayedPeriod) return true;
+                const isCurrentPeriod = period.startDate === currentDisplayedPeriod.startDate && 
+                        period.endDate === currentDisplayedPeriod.endDate;
+                return !isCurrentPeriod;
+            });
+            
+            // Create updated dropdown options
+            const dropdownOptions = filteredPeriods.map(period => ({
+                text: `${period.startDate} - ${period.endDate}`,
+                value: period
+            }));
+            
+            // Determine button text - show currently displayed period
+            let buttonText;
+            if (currentDisplayedPeriod) {
+                buttonText = `${currentDisplayedPeriod.startDate} - ${currentDisplayedPeriod.endDate}`;
+            } else {
+                buttonText = dropdownOptions.length > 0 ? 'Select a rating period' : 'No rating periods available';
+            }
+            
+            // Add arrow only if there are dropdown options to select
+            if (dropdownOptions.length > 0) {
+                buttonText += ' ▼';
+            }
+            
+            // Check if we should disable dropdown (total periods <= 1 or no alternatives)
+            const shouldDisableDropdown = periods.length <= 1 || filteredPeriods.length === 0;
+            
+            const newDropdown = UIUtils.createDropdown(
+                dropdownOptions,
+                (option) => OfficerRatingManager.displayRatingForSection(option.value, userType, displayElementId),
+                buttonText,
+                shouldDisableDropdown
+            );
+            
+            // Apply same styling
+            newDropdown.container.style.maxWidth = '250px';
+            newDropdown.container.style.flexShrink = '1';
+            
+            // Replace the old dropdown
+            existingDropdown.parentNode.replaceChild(newDropdown.container, existingDropdown);
+        });
     }
     
     // Create modern rating display for officer sections
@@ -342,6 +478,10 @@ class OfficerRatingManager {
         if (mentorDisplay) mentorDisplay.innerHTML = '';
         if (officerControls) officerControls.innerHTML = '';
         if (officerDisplay) officerDisplay.innerHTML = '';
+        
+        // Clear currently displayed periods for officer sections
+        appState.currentMentorDisplayedPeriod = null;
+        appState.currentOfficerDisplayedPeriod = null;
     }
 }
 

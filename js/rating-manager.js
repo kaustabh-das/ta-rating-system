@@ -30,11 +30,16 @@ class RatingManager {
             'Select a rating period ▼' : 
             'No other rating periods available';
         
+        // Check if we should disable dropdown due to single total period
+        const totalPeriods = appState.existingReviewPeriods.length;
+        const shouldDisableDropdown = totalPeriods <= 1;
+        
         // Create dropdown (left side)
         const dropdown = UIUtils.createDropdown(
             dropdownOptions,
             (option) => RatingManager.displayRatingForPeriod(option.value),
-            placeholder
+            placeholder,
+            shouldDisableDropdown
         );
         
         // Limit dropdown width to prevent excessive padding
@@ -93,25 +98,21 @@ class RatingManager {
             buttonText = dropdownOptions.length > 0 ? 'Select a rating period ▼' : 'No rating periods available';
         }
 
+        // Check if we should disable dropdown due to single total period
+        const totalPeriods = appState.existingReviewPeriods.length;
+        const shouldDisableDropdown = totalPeriods <= 1;
+
         // Create new dropdown
         const newDropdown = UIUtils.createDropdown(
             dropdownOptions,
             (option) => RatingManager.displayRatingForPeriod(option.value),
-            buttonText // Use current period as the "placeholder"
+            buttonText, // Use current period as the "placeholder"
+            shouldDisableDropdown
         );
 
         // Apply same styling as initial dropdown
         newDropdown.container.style.maxWidth = '300px';
         newDropdown.container.style.flexShrink = '1';
-
-        // If there are no other periods to select, disable the dropdown functionality
-        if (dropdownOptions.length === 0) {
-            newDropdown.button.style.opacity = '0.7';
-            newDropdown.button.style.cursor = 'default';
-            // Disable click functionality
-            newDropdown.button.onclick = null;
-            newDropdown.button.removeEventListener('click', newDropdown.button.onclick);
-        }
 
         // Replace the old dropdown
         existingDropdown.parentNode.replaceChild(newDropdown.container, existingDropdown);
